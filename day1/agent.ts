@@ -27,16 +27,16 @@ const modelRuntime = await ModelRuntime.create();
 // 只列已配置凭据的模型，避免选了模型却调不通。
 const available = await modelRuntime.getAvailable();
 if (available.length === 0) {
-  console.error(
+  process.stderr.write(
     "没有可用模型。\n" +
-      "请配置 ~/.pi/agent/auth.json，或设置环境变量 ANTHROPIC_API_KEY 等。",
+      "请配置 ~/.pi/agent/auth.json，或设置环境变量 ANTHROPIC_API_KEY 等。\n",
   );
   process.exit(1);
 }
 
 // 简单起见选第一个；想指定可用 getModel("anthropic", "claude-opus-4-5")。
 const model = available[0];
-console.error(`[model] ${model.provider}/${model.id}`);
+process.stderr.write(`[model] ${model.provider}/${model.id}\n`);
 
 // ③ 创建一个 AgentSession
 // createAgentSession() 是 SDK 的唯一入口；TUI / print / RPC 模式都基于它。
@@ -66,10 +66,10 @@ const unsubscribe = session.subscribe((event) => {
       break;
     }
     case "tool_execution_start":
-      console.error(`\n[tool] ${event.toolName}`);
+      process.stderr.write(`\n[tool] ${event.toolName}\n`);
       break;
     case "agent_end":
-      console.error();
+      process.stderr.write("\n");
       break;
   }
 });
@@ -78,7 +78,7 @@ const unsubscribe = session.subscribe((event) => {
 // readline 每次拿到一行用户输入，调用 session.prompt() 发给 agent。
 // prompt() 会一直 await 到本轮结束（LLM 回复 + 工具调用 + 重试）。
 const rl = readline.createInterface({ input: stdin, output: stdout });
-console.error("\n输入消息开始对话，输入 exit 退出。");
+process.stderr.write("\n输入消息开始对话，输入 exit 退出。\n");
 
 try {
   while (true) {
@@ -91,7 +91,7 @@ try {
     process.stdout.write("\n");
   }
 } catch (err) {
-  console.error(`\n[error] ${(err as Error).message}`);
+  process.stderr.write(`\n[error] ${(err as Error).message}\n`);
 } finally {
   // dispose() 释放事件订阅和 session 持有的资源，务必在退出前调用。
   unsubscribe();
