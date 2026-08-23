@@ -13,14 +13,8 @@ Requires Node ≥ 22.6 (Node 24 enables `--experimental-strip-types` by default;
 
 ```bash
 cd day1
-
-# Link the globally installed pi-coding-agent into local node_modules (one-time)
-npm link @earendil-works/pi-coding-agent
-
-# Start
-npm start
-# Equivalent to:
-node --experimental-strip-types agent.ts
+npm install   # install @earendil-works/pi-coding-agent
+npm start     # node --experimental-strip-types agent.ts
 ```
 
 After starting you'll see `[model] xxx/xxx`, then enter the REPL. Type a message to chat; type `exit` to quit.

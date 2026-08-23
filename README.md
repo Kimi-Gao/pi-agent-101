@@ -46,7 +46,7 @@ agent-mini/
 ├── day1/                    ← CLI REPL minimum viable chat ([README](./day1/README.md))
 │   ├── agent.ts
 │   ├── package.json
-│   ├── node_modules/        (symlink → global pi-coding-agent)
+│   ├── node_modules/        (local dependencies after npm install)
 │   └── README.md
 ├── day2/ ... day13/         ← Each day is an independent directory
 ```
@@ -55,8 +55,8 @@ agent-mini/
 
 ```bash
 cd day1
-npm link @earendil-works/pi-coding-agent   # one-time setup
-npm start                                   # node --experimental-strip-types agent.ts
+npm install   # one-time install of @earendil-works/pi-coding-agent
+npm start     # node --experimental-strip-types agent.ts
 ```
 
 See [day1 README](./day1/README.md) for details.
