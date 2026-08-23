@@ -60,10 +60,10 @@ const unsubscribe = session.subscribe((event) => {
       break;
     }
     case "tool_execution_start":
-      process.stderr.write(`\n[tool] ${event.toolName}\n`);
+      console.error(`\n[tool] ${event.toolName}`);
       break;
     case "agent_end":
-      process.stderr.write("\n");
+      console.error();
       break;
   }
 });
@@ -72,7 +72,7 @@ const unsubscribe = session.subscribe((event) => {
 // readline 每次拿到一行用户输入，调用 session.prompt() 发给 agent。
 // prompt() 会一直 await 到本轮结束（LLM 回复 + 工具调用 + 重试）。
 const rl = readline.createInterface({ input: stdin, output: stdout });
-process.stderr.write("\n输入消息开始对话，输入 exit 退出。\n\n");
+console.error("\n输入消息开始对话，输入 exit 退出。");
 
 try {
   while (true) {
@@ -85,7 +85,7 @@ try {
     process.stdout.write("\n");
   }
 } catch (err) {
-  process.stderr.write(`\n[error] ${(err as Error).message}\n`);
+  console.error(`\n[error] ${(err as Error).message}`);
 } finally {
   // dispose() 释放事件订阅和 session 持有的资源，务必在退出前调用。
   unsubscribe();
