@@ -61,10 +61,10 @@ const unsubscribe = session.subscribe((event) => {
       break;
     }
     case "tool_execution_start":
-      process.stderr.write(`\n[tool] ${event.toolName}\n`);
+      console.error(`\n[tool] ${event.toolName}`);
       break;
     case "agent_end":
-      process.stderr.write("\n");
+      console.error();
       break;
   }
 });
@@ -73,7 +73,7 @@ const unsubscribe = session.subscribe((event) => {
 // readline grabs one line of user input per iteration; session.prompt() sends it to the agent.
 // prompt() awaits the entire turn (LLM reply + tool calls + retries).
 const rl = readline.createInterface({ input: stdin, output: stdout });
-process.stderr.write("\nType to chat. 'exit' to quit.\n\n");
+console.error("\nType to chat. 'exit' to quit.");
 
 try {
   while (true) {
@@ -86,7 +86,7 @@ try {
     process.stdout.write("\n");
   }
 } catch (err) {
-  process.stderr.write(`\n[error] ${(err as Error).message}\n`);
+  console.error(`\n[error] ${(err as Error).message}`);
 } finally {
   // dispose() releases event subscriptions and resources held by the session; must call before exit.
   unsubscribe();
