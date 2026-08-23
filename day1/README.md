@@ -51,6 +51,68 @@ Six SDK calls appear in order in `agent.ts`:
 
 Later days use more events: `tool_execution_update` / `tool_execution_end` (day4), `thinking_delta` (day6), `compaction_*` (day12), etc.
 
+## Message stream ordering
+
+In `agent.ts`, `session.prompt(text)` causes the SDK to internally emit a stream of events (multiple `message_update` / `text_delta`s, possibly interleaved with `tool_execution_start`, ending with `agent_end`), and the `subscribe()` callback writes them to the terminal one at a time.
+
+On the surface, the risks look plentiful: events arrive asynchronously, the callback fires repeatedly, and stdout can be written to again after any character is already out. How do we guarantee that streaming text lands on the terminal character by character in the order the LLM emits it — never overwritten, never reordered?
+
+`agent.ts` does no "sorting" of its own. Instead it leans on four mechanisms stacking together so **the ordering problem never gets a chance to arise**.
+
+### ① Single subscribe callback + JS event loop (the key)
+
+```ts
+const unsubscribe = session.subscribe((event) => {  // ← only one callback registered
+  switch (event.type) {
+    case "message_update": {
+      const e = event.assistantMessageEvent;
+      if (e.type === "text_delta") process.stdout.write(e.delta);
+      break;
+    }
+    // ...
+  }
+});
+```
+
+JavaScript is single-threaded, so the entire `switch` is a **non-interruptible critical section**. Once we enter the `text_delta` branch and run `process.stdout.write(e.delta)`, the callback runs **synchronously to completion**, with no second event callback able to jump in mid-stream. The next `text_delta` can only be dequeued and executed after the current callback returns. Therefore **the order events reach stdout = the order they're consumed = the order the SDK fires them**.
+
+### ② `prompt()` as an `await` barrier — serializing each turn
+
+```ts
+process.stdout.write("assistant> ");
+await session.prompt(text); // ★ blocks until this turn's agent_end
+process.stdout.write("\n");
+```
+
+`prompt()` blocks until the turn ends (LLM reply + tool calls + retries) before resolving. The next turn's user input cannot reach `prompt()` before the previous turn's `agent_end` — if the previous turn hasn't finished streaming, it can't be clobbered by the new one.
+
+### ③ stdout / stderr physical isolation
+
+| Source | Sink | Line |
+| --- | --- | --- |
+| LLM `text_delta` | `process.stdout.write` | 60 |
+| Tool log `[tool] xxx` | `process.stderr.write` | 64 |
+| Turn-end newline | `process.stderr.write` | 67 |
+| Error message | `process.stderr.write` | 89 |
+| User prompt `assistant> ` | `process.stdout.write` | 84 |
+
+`text_delta` is the **only** code path that writes to stdout; everything else goes to stderr. Node's stdout and stderr are separated at the fd level, so writes don't block each other and reads don't interleave. Even if `process.stderr.write` jumps in at any moment, it cannot flush out the streaming text on stdout.
+
+> Side note: day1 unified all `console.error` calls into `process.stderr.write(..., "\n")` to standardize newline behavior (whether `console.error` auto-appends a newline in an interactive terminal depends on TTY detection; with a raw stream that ambiguity goes away).
+
+### ④ SDK upstream events are already ordered
+
+`agent.ts` is purely a consumer — it does no sorting. The ordering guarantee actually comes from two things upstream of the SDK:
+
+1. **Streaming token order**: the LLM server pushes tokens in order; the SDK maps each SSE chunk into a `text_delta` event, **preserving arrival order**.
+2. **Event-type order**: the SDK's internal event protocol is well-ordered by construction — within one message, no other message's `text_delta` can interleave between its `text_delta`s; `tool_execution_start` only appears between text segments; and finally `agent_end` closes the turn.
+
+The downstream just needs to "consume in arrival order" and is naturally ordered.
+
+### TL;DR
+
+**`agent.ts` doesn't sort. It relies on the combined effect of "a single `subscribe` callback + JS single-threadedness + `await prompt()` serialization + stdout/stderr separation" to make the ordering problem impossible to arise.** The moment someone refactors it to "one callback per event type" or "await another async operation inside `text_delta`", the ordering guarantee breaks right away — a textbook case of "leaning on the language runtime, not on code logic, to maintain an invariant".
+
 ## Glossary
 
 Terms in the order they appear in day1 code; a few words from later days are also listed:
