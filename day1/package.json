@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "基于 pi SDK 的最小对话 agent 教学示例",
+  "description": "Minimal pi SDK chat agent tutorial example",
   "scripts": {
     "start": "node --experimental-strip-types agent.ts"
   },
