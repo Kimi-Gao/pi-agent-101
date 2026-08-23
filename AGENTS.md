@@ -21,6 +21,13 @@ Agent / automation conventions for this project. Claude Code should read this fi
   - Exceptions: pure-research / pure-question turns, and turns where the user explicitly says "don't commit yet" — those skip.
   - One commit per turn is the default. If a turn covers multiple unrelated changes, split into multiple commits with `git add <path>` per commit.
 
+- **Bilingual sync is mandatory.** This repo has two language branches: `main` (English) and `cn` (Chinese). A doc change landed on only one side is a bug — both must stay in sync.
+  - Editing English docs on `main` → spawn a subagent in a `worktree` on `cn` to apply the Chinese equivalent (translate headings, body, code comments; keep code/CLI/identifiers/URLs identical).
+  - Editing Chinese docs on `cn` → spawn a subagent in a `worktree` on `main` to apply the English equivalent.
+  - The subagent does the translation, commits on its own branch with a clear bilingual-sync message, and pushes. Run it before the main turn's `git push` so both branches land in the same turn.
+  - Scope: any prose a user reads (READMEs, AGENTS.md, `docs/`, comment blocks in source). Pure code, lockfiles, generated artifacts, and identifiers are exempt.
+  - If a doc file only exists on one side (e.g. a brand-new file), create the empty stub on the other branch in the same sync commit so future edits always have a counterpart.
+
 ## Tool preferences
 
 - **Search**: prefer `mcp__MiniMax__web_search`. Fall back to `WebFetch` when MCP is unavailable.
