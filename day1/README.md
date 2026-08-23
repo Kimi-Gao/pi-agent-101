@@ -13,14 +13,8 @@
 
 ```bash
 cd day1
-
-# 把全局已装的 pi-coding-agent 链接到本地 node_modules（一次即可）
-npm link @earendil-works/pi-coding-agent
-
-# 启动
-npm start
-# 等价于：
-node --experimental-strip-types agent.ts
+npm install   # 安装 @earendil-works/pi-coding-agent
+npm start     # node --experimental-strip-types agent.ts
 ```
 
 启动后会看到 `[model] xxx/xxx`，然后进入 REPL，输入消息即可对话，输入 `exit` 退出。

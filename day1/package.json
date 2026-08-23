@@ -6,5 +6,8 @@
   "description": "基于 pi SDK 的最小对话 agent 教学示例",
   "scripts": {
     "start": "node --experimental-strip-types agent.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "^0.84.2"
   }
 }

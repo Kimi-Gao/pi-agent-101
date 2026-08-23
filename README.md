@@ -46,7 +46,7 @@ agent-mini/
 ├── day1/                    ← CLI REPL 最小对话（[README](./day1/README.md)）
 │   ├── agent.ts
 │   ├── package.json
-│   ├── node_modules/        （symlink → 全局 pi-coding-agent）
+│   ├── node_modules/        （npm install 后本地依赖）
 │   └── README.md
 ├── day2/ ... day13/         ← 后续每天一个独立目录，互不干扰
 ```
@@ -55,8 +55,8 @@ agent-mini/
 
 ```bash
 cd day1
-npm link @earendil-works/pi-coding-agent   # 一次即可
-npm start                                   # node --experimental-strip-types agent.ts
+npm install   # 一次性安装 @earendil-works/pi-coding-agent
+npm start     # node --experimental-strip-types agent.ts
 ```
 
 详见 [day1 的 README](./day1/README.md)。
