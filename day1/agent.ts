@@ -51,6 +51,12 @@ const { session } = await createAgentSession({
 // ④ 订阅事件流
 // SDK 把 LLM 的增量输出、工具调用、生命周期全部以事件形式抛出。
 // 这里只关心三种：流式文本、工具调用开始、一轮结束。
+// 这一行里其实有三个名字，容易混淆，拆开说：
+//   session.subscribe  — 订阅动作（把回调挂到事件流上）。
+//   (event) => { ... }  — 回调本身：每来一个事件做什么。
+//   unsubscribe        — subscribe() 返回的退订句柄，调用它就取消订阅。
+// 本 demo 不会调它，因为进程马上就要退出；长跑的 agent 应该在
+// cleanup / dispose 路径里调一次，避免监听器泄漏。
 const unsubscribe = session.subscribe((event) => {
   switch (event.type) {
     case "message_update": {
