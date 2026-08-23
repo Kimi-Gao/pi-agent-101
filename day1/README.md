@@ -51,6 +51,68 @@ npm start     # node --experimental-strip-types agent.ts
 
 后续 day 会用到更多事件：`tool_execution_update` / `tool_execution_end`（day4）、`thinking_delta`（day6）、`compaction_*`（day12）等。
 
+## 消息流的顺序保证
+
+`agent.ts` 里 `session.prompt(text)` 会让 SDK 内部产生一连串事件（多个 `message_update`/`text_delta`、可能穿插 `tool_execution_start`、最后 `agent_end`），`subscribe()` 的回调要逐个把它们写到终端。
+
+表面上看风险很多：事件是异步到达的、回调会被反复触发、stdout 写过任何字符后都可以再写。怎么保证流式文本按 LLM 给的顺序逐字落到终端、不会被覆盖或乱序？
+
+`agent.ts` 自己不做任何"排序"，靠下面四层机制叠加，**让顺序问题根本无从产生**。
+
+### ① 单订阅回调 + 单线程事件循环（最关键）
+
+```ts
+const unsubscribe = session.subscribe((event) => {  // ← 只注册了一个回调
+  switch (event.type) {
+    case "message_update": {
+      const e = event.assistantMessageEvent;
+      if (e.type === "text_delta") process.stdout.write(e.delta);
+      break;
+    }
+    // ...
+  }
+});
+```
+
+JS 是单线程，整个 `switch` 是一个**不可中断的临界区**。一旦进入 `text_delta` 分支并执行 `process.stdout.write(e.delta)`，回调会**同步跑到底**，期间不会有第二个事件回调插队。下一个 `text_delta` 只能在当前回调 return 后、从事件队列里被取出执行。因此**到达 stdout 的顺序 = 事件被消费的顺序 = SDK 触发顺序**。
+
+### ② `prompt()` 的 await 屏障 —— 串行化整轮
+
+```ts
+process.stdout.write("assistant> ");
+await session.prompt(text); // ★ 阻塞到本轮 agent_end 才返回
+process.stdout.write("\n");
+```
+
+`prompt()` 阻塞到本轮结束（LLM 回复 + 工具调用 + 重试）才 resolve。下一轮用户输入不可能在前一轮 `agent_end` 之前进入 `prompt()` —— 上一轮没流完，就不可能被新轮覆盖。
+
+### ③ stdout / stderr 物理隔离
+
+| 来源 | 流向 | 行号 |
+| --- | --- | --- |
+| LLM 的 `text_delta` | `process.stdout.write` | 65 |
+| 工具日志 `[tool] xxx` | `process.stderr.write` | 69 |
+| 轮结束换行 | `process.stderr.write` | 72 |
+| 错误信息 | `process.stderr.write` | 94 |
+| 用户提示 `assistant> ` | `process.stdout.write` | 89 |
+
+`text_delta` 是**唯一**写 stdout 的代码路径；其它信息全走 stderr。Node 的 stdout / stderr 在 fd 层面就是分开的，写入互不阻塞、读取也不会交错。即使 `process.stderr.write` 在任意时机插队，也不会冲刷 stdout 里的流式文本。
+
+> 顺带说一句：day1 把所有 `console.error` 都换成了 `process.stderr.write(..., "\n")`，统一换行行为（`console.error` 在交互终端是否自动换行依赖 TTY 检测，stream 里就没这个问题）。
+
+### ④ SDK 上游的事件本身是有序的
+
+`agent.ts` 只是消费者，不做排序。顺序保证其实来自 SDK 上游的两件事：
+
+1. **流式 token 顺序**：LLM 服务端按 token 顺序 push，SDK 把每个 SSE 块翻译成 `text_delta` 事件，**保持到达顺序**。
+2. **事件类型顺序**：SDK 内部的事件协议本身是良序的 —— 同一 message 内多个 `text_delta` 之间不会插入别的 message 的 `text_delta`；`tool_execution_start` 只在文本段落之间出现；最后以 `agent_end` 收尾。
+
+下游只需"按到达顺序消费"，自然就是有序的。
+
+### 一句话总结
+
+**`agent.ts` 不排序，靠"`subscribe` 单回调 + JS 单线程 + `await prompt()` 串行化 + stdout/stderr 分离"这套组合拳，让顺序问题无从产生。** 一旦有人把它改成"每个事件类型注册独立回调"或者"在 `text_delta` 里再 `await` 一个异步操作"，顺序保证就会立刻被破坏 —— 这是典型的"靠语言运行时而不是靠代码逻辑"来维护不变量的写法。
+
 ## 术语解释
 
 按 day1 代码中出现顺序解释，几个后续 day 会接触到的词也一并列出：
