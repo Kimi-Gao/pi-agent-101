@@ -28,16 +28,16 @@ const modelRuntime = await ModelRuntime.create();
 // List only models with valid credentials, to avoid picking a model that can't be called.
 const available = await modelRuntime.getAvailable();
 if (available.length === 0) {
-  console.error(
+  process.stderr.write(
     "No available models.\n" +
-      "Please configure ~/.pi/agent/auth.json, or set an environment variable such as ANTHROPIC_API_KEY.",
+      "Please configure ~/.pi/agent/auth.json, or set an environment variable such as ANTHROPIC_API_KEY.\n",
   );
   process.exit(1);
 }
 
 // Pick the first for simplicity; use getModel("anthropic", "claude-opus-4-5") to pin a specific one.
 const model = available[0];
-console.error(`[model] ${model.provider}/${model.id}`);
+process.stderr.write(`[model] ${model.provider}/${model.id}\n`);
 
 // ③ Create an AgentSession
 // createAgentSession() is the SDK's only entry point; TUI / print / RPC modes are all built on it.
@@ -61,10 +61,10 @@ const unsubscribe = session.subscribe((event) => {
       break;
     }
     case "tool_execution_start":
-      console.error(`\n[tool] ${event.toolName}`);
+      process.stderr.write(`\n[tool] ${event.toolName}\n`);
       break;
     case "agent_end":
-      console.error();
+      process.stderr.write("\n");
       break;
   }
 });
@@ -73,7 +73,7 @@ const unsubscribe = session.subscribe((event) => {
 // readline grabs one line of user input per iteration; session.prompt() sends it to the agent.
 // prompt() awaits the entire turn (LLM reply + tool calls + retries).
 const rl = readline.createInterface({ input: stdin, output: stdout });
-console.error("\nType to chat. 'exit' to quit.");
+process.stderr.write("\nType to chat. 'exit' to quit.\n");
 
 try {
   while (true) {
@@ -86,7 +86,7 @@ try {
     process.stdout.write("\n");
   }
 } catch (err) {
-  console.error(`\n[error] ${(err as Error).message}`);
+  process.stderr.write(`\n[error] ${(err as Error).message}\n`);
 } finally {
   // dispose() releases event subscriptions and resources held by the session; must call before exit.
   unsubscribe();
