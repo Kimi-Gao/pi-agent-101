@@ -1,6 +1,6 @@
-# agent-mini
+# pi-agent-101
 
-**[English]** | [中文](https://github.com/Kimi-Gao/agent-mini/blob/cn/README.md)
+**[English]** | [中文](https://github.com/Kimi-Gao/pi-agent-101/blob/cn/README.md)
 
 An incremental tutorial project for building a Web UI Agent chat box on top of the pi SDK.
 
@@ -15,8 +15,8 @@ Goal: start from the command line, incrementally evolve into a Web UI you can ch
 | Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
 | [**day1**](./day1/) | ✅ | CLI REPL minimum viable chat | `createAgentSession`, `subscribe`, `prompt` |
-| day2 | ⬜ | Web UI minimum viable version (single session + SSE streaming) | Node `http` + `EventSource`; server translates `subscribe` events into SSE |
-| day3 | ⬜ | Multi-session management (sidebar + new/switch/delete sessions) | `createAgentSessionRuntime`, `runtime.newSession` / `switchSession` |
+| day2 | ✅ | Web UI minimum viable version (single session + SSE streaming) | Node `http` + `EventSource`; server translates `subscribe` events into SSE |
+| day3 | ✅ | Multi-session management (sidebar + new/switch/delete sessions) | `createAgentSessionRuntime`, `runtime.newSession` / `switchSession` |
 | day4 | ⬜ | Tool call visualization (one collapsible card per tool call) | `tool_execution_start` / `_update` / `_end` events |
 | day5 | ⬜ | Skills panel + custom tool buttons | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
 | day6 | ⬜ | Thinking visualization + tool human-in-the-loop + persistence | `thinking_delta` event + event interception + `SessionManager.create` |
@@ -41,7 +41,7 @@ Each capability in Track 2 follows: read the official pi extension example → u
 ## Directory layout
 
 ```
-agent-mini/
+pi-agent-101/
 ├── README.md                ← This file: roadmap
 ├── day1/                    ← CLI REPL minimum viable chat ([README](./day1/README.md))
 │   ├── agent.ts
