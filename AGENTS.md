@@ -23,8 +23,9 @@ Agent / automation conventions for this project. Claude Code should read this fi
 
 - **Bilingual sync is mandatory.** This repo has two language branches: `main` (English) and `cn` (Chinese). A doc change landed on only one side is a bug — both must stay in sync.
   - **中文 → 直接改在 `cn` 分支. English → edit directly on `main`.** 对应语言的内容在对应分支上直接编辑、commit、推送。
-  - **不要新建分支** — 不要为双语同步创建 `*-bilingual-sync`、`*-cn` 之类的临时分支或 worktree。当前分支不对就先 `git checkout` 切换:`中文 → cn`,`English → main`。
-  - 同一回合跨语言时:在 `main` 上做完英文 commit 并 push → `git checkout cn` → 加中文对应版本 commit 并 push。两次切换都在同一个 turn 内完成,中间不要开 PR、不要新分支;反之亦然(中文先也行)。
+  - **不要为同步新建分支** — 不开 `*-bilingual-sync`、`*-cn` 之类的临时分支。跨语言的工作统一在 `cn` / `main` 这两个长期分支上,不开 feature sync 分支。
+  - **跨语言时开 worktree 切到目标语言分支**:当前在 `main` 上做英文改动 → 开一个 worktree 切到 `cn`,改中文、commit、push `origin/cn`;当前在 `cn` 上做中文改动 → 开一个 worktree 切到 `main`,改英文、commit、push `origin/main`(反之亦然)。这样不动用户当前的 checkout,也不引入新分支。如果目标分支已在别处 checked out,改用 `git checkout --detach <branch>` 在 worktree 里以 detached HEAD 操作,commit 后直接 `git push origin HEAD:<branch>`。
+  - 同一回合跨语言的两份 commit 都要在该 turn 内 push 上去才算完成,不能留半边。
   - Scope: any prose a user reads (READMEs, AGENTS.md, `docs/`, comment blocks in source). Pure code, lockfiles, generated artifacts, and identifiers are exempt.
   - If a doc file only exists on one side (e.g. a brand-new file), create the empty stub on the other branch in the same sync commit so future edits always have a counterpart.
 
