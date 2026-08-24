@@ -81,7 +81,7 @@ const HTML = `<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>agent-mini · day2</title>
+<title>pi-agent-101 · day2</title>
 <style>
   body { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace;
          max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #222; }
@@ -103,7 +103,7 @@ const HTML = `<!doctype html>
 </style>
 </head>
 <body>
-<h1>agent-mini <small>day2 · 单会话 + SSE</small></h1>
+<h1>pi-agent-101 <small>day2 · 单会话 + SSE</small></h1>
 <div id="log"></div>
 <form id="f">
   <input id="t" autocomplete="off" placeholder="说点什么…  Enter 发送">

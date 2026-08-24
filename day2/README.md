@@ -1,6 +1,6 @@
 # day2：Web UI 最小版（单会话 + SSE 流式推送）
 
-本目录是 `agent-mini` 项目的 **day2** —— 第一篇第二站。
+本目录是 `pi-agent-101` 项目的 **day2** —— 第一篇第二站。
 整体规划见仓库根目录的 [README.md](../README.md)；前一篇见 [day1](../day1/README.md)。
 
 ## 为什么

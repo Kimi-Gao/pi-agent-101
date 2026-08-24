@@ -1,6 +1,6 @@
 # day3：多会话管理 Web UI
 
-本目录是 `agent-mini` 项目的 **day3** —— 第一篇第三站。
+本目录是 `pi-agent-101` 项目的 **day3** —— 第一篇第三站。
 整体规划见仓库根目录的 [README.md](../README.md)；前一篇见 [day2](../day2/README.md)。
 
 ## 为什么
