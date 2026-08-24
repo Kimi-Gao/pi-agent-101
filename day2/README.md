@@ -85,25 +85,26 @@ data: {}
 
 ## 三段连线：服务端 ↔ 浏览器
 
-```
-浏览器 (EventSource)
-        │
-        │  GET /api/events          ← 建立长连接
-        ▼
-  ┌─────────────┐                ┌──────────────────────┐
-  │  http server │  SSE 帧        │  session.subscribe() │
-  │  subscribers │ ◄──────────── │  (text_delta / tool_ │
-  │    (Set)     │   序列化事件    │   start / agent_end) │
-  └─────────────┘                └──────────────────────┘
-        ▲                                ▲
-        │  res.write(payload)            │
-        │                                │ 事件由 LLM 循环触发
-        │                                │
-        │  fetch POST /api/prompt        │
-        │ ───────────────────────────►   │
-        │  body: { text: "..." }          │
-        │                                │
-        │           session.prompt(text) ─┘
+```mermaid
+sequenceDiagram
+    participant B as 浏览器
+    participant S as 服务端<br/>(http server)
+    participant SS as session
+
+    Note over B,S: ① 建立 SSE 长连接
+    B->>S: GET /api/events
+    S-->>B: 200 text/event-stream
+    Note over S: res 加入 subscribers Set
+
+    Note over B,SS: ② 用户发消息 → 触发 prompt
+    B->>S: POST /api/prompt { text }
+    S->>SS: session.prompt(text)
+
+    Note over S,SS: ③ session 事件 → 广播给所有 subscribers
+    loop LLM 流式循环
+        SS-->>S: 事件 (text_delta / tool_start / agent_end)
+        S-->>B: SSE 帧<br/>event + data: JSON
+    end
 ```
 
 ## 术语解释
