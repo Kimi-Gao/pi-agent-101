@@ -22,10 +22,10 @@ Agent / automation conventions for this project. Claude Code should read this fi
   - One commit per turn is the default. If a turn covers multiple unrelated changes, split into multiple commits with `git add <path>` per commit.
 
 - **Bilingual sync is mandatory.** This repo has two language branches: `main` (English) and `cn` (Chinese). A doc change landed on only one side is a bug — both must stay in sync.
-  - **中文 → 直接改在 `cn` 分支. English → edit directly on `main`.** 对应语言的内容在对应分支上直接编辑、commit、推送。
-  - **不要为同步新建分支** — 不开 `*-bilingual-sync`、`*-cn` 之类的临时分支。跨语言的工作统一在 `cn` / `main` 这两个长期分支上,不开 feature sync 分支。
-  - **跨语言时开 worktree 切到目标语言分支**:当前在 `main` 上做英文改动 → 开一个 worktree 切到 `cn`,改中文、commit、push `origin/cn`;当前在 `cn` 上做中文改动 → 开一个 worktree 切到 `main`,改英文、commit、push `origin/main`(反之亦然)。这样不动用户当前的 checkout,也不引入新分支。如果目标分支已在别处 checked out,改用 `git checkout --detach <branch>` 在 worktree 里以 detached HEAD 操作,commit 后直接 `git push origin HEAD:<branch>`。
-  - 同一回合跨语言的两份 commit 都要在该 turn 内 push 上去才算完成,不能留半边。
+  - **Chinese → edit directly on `cn`. English → edit directly on `main`.** Commit and push on the matching language branch.
+  - **No sync branches.** Never create `*-bilingual-sync` or `*-cn` style temporary branches. All bilingual work lives on the two long-lived branches `cn` and `main`.
+  - **Cross-language edits go through a worktree.** When the current checkout is on `main` and you're shipping English, open a worktree, check out `cn`, make the Chinese edit, commit, and push `origin/cn`. When the current checkout is on `cn` and you're shipping Chinese, open a worktree, check out `main`, make the English edit, commit, and push `origin/main` (and vice versa). This keeps the user's current checkout untouched and never introduces new branches. If the target branch is already checked out elsewhere, use `git checkout --detach <branch>` inside the worktree, then `git push origin HEAD:<branch>`.
+  - Both commits in a cross-language turn must be pushed within the same turn — half-done sync is a bug.
   - Scope: any prose a user reads (READMEs, AGENTS.md, `docs/`, comment blocks in source). Pure code, lockfiles, generated artifacts, and identifiers are exempt.
   - If a doc file only exists on one side (e.g. a brand-new file), create the empty stub on the other branch in the same sync commit so future edits always have a counterpart.
 
