@@ -88,25 +88,26 @@ Later days will add more: `tool_execution_update` / `tool_execution_end` (day4),
 
 ## Three links: server ↔ browser
 
-```
-Browser (EventSource)
-        │
-        │  GET /api/events          ← establish long connection
-        ▼
-  ┌─────────────┐                ┌──────────────────────┐
-  │  http server │  SSE frame      │  session.subscribe() │
-  │  subscribers │ ◄──────────── │  (text_delta / tool_ │
-  │    (Set)     │   serialize ev.  │   start / agent_end) │
-  └─────────────┘                └──────────────────────┘
-        ▲                                ▲
-        │  res.write(payload)            │
-        │                                │ events triggered by LLM loop
-        │                                │
-        │  fetch POST /api/prompt        │
-        │ ───────────────────────────►   │
-        │  body: { text: "..." }          │
-        │                                │
-        │           session.prompt(text) ─┘
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant S as Server<br/>(http server)
+    participant SS as session
+
+    Note over B,S: ① Establish SSE long connection
+    B->>S: GET /api/events
+    S-->>B: 200 text/event-stream
+    Note over S: res added to subscribers Set
+
+    Note over B,SS: ② User sends message → triggers prompt
+    B->>S: POST /api/prompt { text }
+    S->>SS: session.prompt(text)
+
+    Note over S,SS: ③ session events → broadcast to all subscribers
+    loop LLM streaming loop
+        SS-->>S: event (text_delta / tool_start / agent_end)
+        S-->>B: SSE frame<br/>event + data: JSON
+    end
 ```
 
 ## Term glossary
