@@ -1,6 +1,6 @@
 # day2: minimal Web UI (single session + SSE streaming push)
 
-This directory is **day2** of the `agent-mini` project — the second stop of the first arc.
+This directory is **day2** of the `pi-agent-101` project — the second stop of the first arc.
 See the overall plan in the repo-root [README.md](../README.md); the previous arc is [day1](../day1/README.md).
 
 ## Why

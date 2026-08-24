@@ -1,6 +1,6 @@
 # day3: Multi-session Web UI
 
-This directory is **day3** of the `agent-mini` project — the third stop in the first arc.
+This directory is **day3** of the `pi-agent-101` project — the third stop in the first arc.
 See the repo root [README.md](../README.md) for the full plan; the previous entry is [day2](../day2/README.md).
 
 ## Why

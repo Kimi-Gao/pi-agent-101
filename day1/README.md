@@ -1,6 +1,6 @@
 # day1: CLI REPL minimum viable chat
 
-This directory is `agent-mini`'s **day1** — the opening of Track 1.
+This directory is `pi-agent-101`'s **day1** — the opening of Track 1.
 See the root [README.md](../README.md) for the overall roadmap.
 
 ## Why
