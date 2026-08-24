@@ -22,9 +22,9 @@ Agent / automation conventions for this project. Claude Code should read this fi
   - One commit per turn is the default. If a turn covers multiple unrelated changes, split into multiple commits with `git add <path>` per commit.
 
 - **Bilingual sync is mandatory.** This repo has two language branches: `main` (English) and `cn` (Chinese). A doc change landed on only one side is a bug — both must stay in sync.
-  - Editing English docs on `main` → spawn a subagent in a `worktree` on `cn` to apply the Chinese equivalent (translate headings, body, code comments; keep code/CLI/identifiers/URLs identical).
-  - Editing Chinese docs on `cn` → spawn a subagent in a `worktree` on `main` to apply the English equivalent.
-  - The subagent does the translation, commits on its own branch with a clear bilingual-sync message, and pushes. Run it before the main turn's `git push` so both branches land in the same turn.
+  - **中文 → 直接改在 `cn` 分支. English → edit directly on `main`.** 对应语言的内容在对应分支上直接编辑、commit、推送。
+  - **不要新建分支** — 不要为双语同步创建 `*-bilingual-sync`、`*-cn` 之类的临时分支或 worktree。当前分支不对就先 `git checkout` 切换:`中文 → cn`,`English → main`。
+  - 同一回合跨语言时:在 `main` 上做完英文 commit 并 push → `git checkout cn` → 加中文对应版本 commit 并 push。两次切换都在同一个 turn 内完成,中间不要开 PR、不要新分支;反之亦然(中文先也行)。
   - Scope: any prose a user reads (READMEs, AGENTS.md, `docs/`, comment blocks in source). Pure code, lockfiles, generated artifacts, and identifiers are exempt.
   - If a doc file only exists on one side (e.g. a brand-new file), create the empty stub on the other branch in the same sync commit so future edits always have a counterpart.
 
