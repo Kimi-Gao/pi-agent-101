@@ -4,11 +4,11 @@
 
 An incremental tutorial project for building an Electron desktop pi agent chat application on top of the pi SDK.
 
-Final goal: a double-clickable, native Electron desktop chat application. The curriculum is split into three stages by agent capability: **Agent fundamentals** (day1-day3 — three forms of an agent: CLI / Web / Desktop), **Basic Agent** (day4-day8 — one foundational capability per day, including multi-session), **Advanced Agent** (day9-day15 — Claude Code parity plus Electron-native capability fill-in). From day3 onward we develop entirely under the Electron main / renderer architecture; chat transport goes straight to native IPC+preload (no `loadURL` shell phase); Notification / dialog / Menu / `protocol.handle` land on whichever day needs them.
+Final goal: a double-clickable, native Electron desktop chat application. The curriculum is split into three stages by agent capability: **Agent fundamentals** — three forms of an agent: CLI / Web / Desktop; **Basic Agent** — one foundational capability per day, including multi-session; **Advanced Agent** — Claude Code parity plus Electron-native capability fill-in. From day3 onward we develop entirely under the Electron main / renderer architecture; chat transport goes straight to native IPC+preload (no `loadURL` shell phase); Notification / dialog / Menu / `protocol.handle` land on whichever day needs them.
 
 ## Roadmap
 
-### Agent fundamentals (day1-day3)
+### Agent fundamentals
 
 > Understand what an agent is, how it runs, and its three basic forms: CLI / Web UI / Desktop Agent (single-session shape).
 
@@ -18,7 +18,7 @@ Final goal: a double-clickable, native Electron desktop chat application. The cu
 | [**day2**](./day2/) | ✅ | Web UI minimum viable version (single session + SSE streaming) | Node `http` + `EventSource`; server translates `subscribe` events into SSE |
 | day3 | ⬜ | **Desktop Agent kickoff** (single-session shape) — first contact with Electron: single session (mirrors day2) + **native IPC transport**: HTTP/SSE deleted, main process owns the pi session directly, renderer talks to it via `contextBridge`-exposed `pi.prompt()` / `pi.on('text_delta', ...)` | `electron` + `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` + `createAgentSession` |
 
-### Basic Agent (day4-day8)
+### Basic Agent
 
 > On top of day3's single-session Electron app, light up foundational capabilities one day at a time: multi-session, tool visualization, Skills, thinking, persistence.
 
@@ -30,7 +30,7 @@ Final goal: a double-clickable, native Electron desktop chat application. The cu
 | day7 | ⬜ | Thinking visualization + basic tool human-in-the-loop approval | `thinking_delta` event + event interception |
 | day8 | ⬜ | Persistence (basic) — SessionManager persists sessions to disk; resumption after restart | `SessionManager.create` |
 
-### Advanced Agent (day9-day15)
+### Advanced Agent
 
 > Reach Claude Code parity: MCP, Sub-agent, Hooks, Compaction, Slash + Plan Mode; plus Electron-native capability fill-in (Notification / dialog / Menu / `protocol.handle`).
 
