@@ -4,11 +4,11 @@
 
 基于 pi SDK 逐步构建一个 Electron 桌面版的 pi agent 聊天对话应用。
 
-最终目标：一个可双击启动的 Electron 原生桌面聊天应用。整个课程按 Agent 的能力阶段分三段：**Agent原理**（day1-day3，弄清 Agent 的三种呈现形态：CLI / Web / Desktop）、**初级Agent**（day4-day8，逐日点亮基础能力，含多会话）、**高级Agent**（day9-day15，达到 Claude Code 同等能力 + Electron 原生能力补齐）。day3 起全程在 Electron 主进程 / 渲染进程的架构下开发：chat transport 直接走 IPC+preload（无 loadURL 壳阶段）；Notification / dialog / Menu / `protocol.handle` 等 Electron 原生能力按各自 day 的需要落地。
+最终目标：一个可双击启动的 Electron 原生桌面聊天应用。整个课程按 Agent 的能力阶段分三段：**Agent原理**——弄清 Agent 的三种呈现形态：CLI / Web / Desktop；**初级Agent**——逐日点亮基础能力，含多会话；**高级Agent**——达到 Claude Code 同等能力 + Electron 原生能力补齐。day3 起全程在 Electron 主进程 / 渲染进程的架构下开发：chat transport 直接走 IPC+preload（无 loadURL 壳阶段）；Notification / dialog / Menu / `protocol.handle` 等 Electron 原生能力按各自 day 的需要落地。
 
 ## 总体规划
 
-### Agent原理（day1-day3）
+### Agent原理
 
 > 弄清楚 Agent 是什么、怎么跑、有几种基本呈现形式：CLI / Web UI / Desktop Agent（单会话形态）。
 
@@ -18,7 +18,7 @@
 | [**day2**](./day2/) | ✅ | Web UI 最小版（单会话 + SSE 流式推送） | Node `http` + `EventSource`；服务端把 `subscribe` 的事件转写成 SSE |
 | day3 | ⬜ | **Desktop Agent 起步**（单会话形态） — 第一次接触 Electron：单会话（跟 day2 对齐）+ **transport 用 native IPC**：HTTP/SSE 全砍，主进程直接持有 pi session，渲染进程通过 `contextBridge` 暴露的 `pi.prompt()` / `pi.on('text_delta', ...)` 跟主进程对话 | `electron` + `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` + `createAgentSession` |
 
-### 初级Agent（day4-day8）
+### 初级Agent
 
 > 在 day3 的单会话 Electron 应用之上，逐日点亮基础能力：多会话、工具可视化、Skills、思考过程、持久化。
 
@@ -30,7 +30,7 @@
 | day7 | ⬜ | 思考过程可视化 + 工具人工审批（基础版） | `thinking_delta` 事件 + 事件拦截 |
 | day8 | ⬜ | 持久化（基础） — SessionManager 把会话落盘，重启可恢复 | `SessionManager.create` |
 
-### 高级Agent（day9-day15）
+### 高级Agent
 
 > 达到 Claude Code 同等能力：MCP、Sub-agent、Hooks、Compaction、Slash + Plan Mode；以及 Electron 原生能力补齐（Notification / dialog / Menu / `protocol.handle`）。
 
