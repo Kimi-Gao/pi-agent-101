@@ -4,44 +4,45 @@
 
 An incremental tutorial project for building an Electron desktop pi agent chat application on top of the pi SDK.
 
-Final goal: a double-clickable, native Electron desktop chat application. The curriculum is split into three stages by agent capability: **Agent fundamentals** (day1-day3 — three forms of an agent: CLI / Web / Desktop), **Basic Agent** (day4-day7 — one foundational capability per day), **Advanced Agent** (day8-day14 — Claude Code parity plus Electron-native capability fill-in). From day3 onward we develop entirely under the Electron main / renderer architecture; chat transport gets upgraded from HTTP/SSE to IPC+preload on day3 itself; Notification / dialog / Menu / `protocol.handle` land on whichever day needs them.
+Final goal: a double-clickable, native Electron desktop chat application. The curriculum is split into three stages by agent capability: **Agent fundamentals** (day1-day3 — three forms of an agent: CLI / Web / Desktop), **Basic Agent** (day4-day8 — one foundational capability per day, including multi-session), **Advanced Agent** (day9-day15 — Claude Code parity plus Electron-native capability fill-in). From day3 onward we develop entirely under the Electron main / renderer architecture; chat transport goes straight to native IPC+preload (no `loadURL` shell phase); Notification / dialog / Menu / `protocol.handle` land on whichever day needs them.
 
 ## Roadmap
 
 ### Agent fundamentals (day1-day3)
 
-> Understand what an agent is, how it runs, and its three basic forms: CLI / Web UI / Desktop Agent.
+> Understand what an agent is, how it runs, and its three basic forms: CLI / Web UI / Desktop Agent (single-session shape).
 
 | Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
 | [**day1**](./day1/) | ✅ | CLI REPL minimum viable chat | `createAgentSession`, `subscribe`, `prompt` |
 | [**day2**](./day2/) | ✅ | Web UI minimum viable version (single session + SSE streaming) | Node `http` + `EventSource`; server translates `subscribe` events into SSE |
-| day3 | ⬜ | **Desktop Agent kickoff** — first contact with Electron: multi-session management (sidebar + new/switch/delete sessions) + **transport upgrade**: HTTP/SSE deleted, main process owns the pi session directly, renderer talks to it via `contextBridge`-exposed `pi.prompt()` / `pi.on('text_delta', ...)` | `electron` + `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` + `createAgentSessionRuntime`, `runtime.newSession` / `switchSession` |
+| day3 | ⬜ | **Desktop Agent kickoff** (single-session shape) — first contact with Electron: single session (mirrors day2) + **native IPC transport**: HTTP/SSE deleted, main process owns the pi session directly, renderer talks to it via `contextBridge`-exposed `pi.prompt()` / `pi.on('text_delta', ...)` | `electron` + `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` + `createAgentSession` |
 
-### Basic Agent (day4-day7)
+### Basic Agent (day4-day8)
 
-> On top of day3's multi-session Electron app, light up foundational capabilities one day at a time: tool visualization, Skills, thinking, persistence.
+> On top of day3's single-session Electron app, light up foundational capabilities one day at a time: multi-session, tool visualization, Skills, thinking, persistence.
 
 | Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
-| day4 | ⬜ | Tool call visualization (one collapsible card per tool call) | `tool_execution_start` / `_update` / `_end` events |
-| day5 | ⬜ | Skills panel + custom tool buttons | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
-| day6 | ⬜ | Thinking visualization + basic tool human-in-the-loop approval | `thinking_delta` event + event interception |
-| day7 | ⬜ | Persistence (basic) — SessionManager persists sessions to disk; resumption after restart | `SessionManager.create` |
+| day4 | ⬜ | **Multi-session management** (sidebar + new/switch/delete sessions) — plug `createAgentSessionRuntime` on top of day3's single-session app | `createAgentSessionRuntime` + `runtime.newSession` / `switchSession` |
+| day5 | ⬜ | Tool call visualization (one collapsible card per tool call) | `tool_execution_start` / `_update` / `_end` events |
+| day6 | ⬜ | Skills panel + custom tool buttons | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
+| day7 | ⬜ | Thinking visualization + basic tool human-in-the-loop approval | `thinking_delta` event + event interception |
+| day8 | ⬜ | Persistence (basic) — SessionManager persists sessions to disk; resumption after restart | `SessionManager.create` |
 
-### Advanced Agent (day8-day14)
+### Advanced Agent (day9-day15)
 
 > Reach Claude Code parity: MCP, Sub-agent, Hooks, Compaction, Slash + Plan Mode; plus Electron-native capability fill-in (Notification / dialog / Menu / `protocol.handle`).
 
 | Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
-| day8 | ⬜ | Tool permission approval system (human-in-the-loop) + **Notification** system notifications | Intercept `tool_execution_start`; frontend pops a confirmation dialog; server suspends until the user decides. See `examples/extensions/permission-gate.ts` + `Notification` |
-| day9 | ⬜ | MCP integration (external tool protocol) | `extensionFactories` + MCP server; tools auto-register into session. Frontend lists MCP tools in the tools panel |
-| day10 | ⬜ | Sub-agent (Task tool + nested session) | Custom `task` tool; internally calls `createAgentSession` to spawn a child session; bubble child events up to parent. See `examples/extensions/subagent/` |
-| day11 | ⬜ | Hooks / extension mechanism full mastery | Listen to all events via `pi.on()`; interact with users via `ctx.ui.confirm/notify`; inject messages via `ctx.sendUserMessage` |
-| day12 | ⬜ | Session restore + branching + **dialog file pickers** (import / export) | `SessionManager.list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
-| day13 | ⬜ | Compaction (auto-compress long sessions) | `session.compact()` + `SettingsManager`'s `compaction.enabled` / threshold; show compaction events on the frontend |
-| day14 | ⬜ | Slash commands + themes + Plan Mode + **native menu bar** + **`protocol.handle('pi-agent://')` deep links** | `promptsOverride` to inject commands; theme files; `Menu.buildFromTemplate` + `protocol.handle` |
+| day9 | ⬜ | Tool permission approval system (human-in-the-loop) + **Notification** system notifications | Intercept `tool_execution_start`; frontend pops a confirmation dialog; server suspends until the user decides. See `examples/extensions/permission-gate.ts` + `Notification` |
+| day10 | ⬜ | MCP integration (external tool protocol) | `extensionFactories` + MCP server; tools auto-register into session. Frontend lists MCP tools in the tools panel |
+| day11 | ⬜ | Sub-agent (Task tool + nested session) | Custom `task` tool; internally calls `createAgentSession` to spawn a child session; bubble child events up to parent. See `examples/extensions/subagent/` |
+| day12 | ⬜ | Hooks / extension mechanism full mastery | Listen to all events via `pi.on()`; interact with users via `ctx.ui.confirm/notify`; inject messages via `ctx.sendUserMessage` |
+| day13 | ⬜ | Session restore + branching + **dialog file pickers** (import / export) | `SessionManager.list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
+| day14 | ⬜ | Compaction (auto-compress long sessions) | `session.compact()` + `SettingsManager`'s `compaction.enabled` / threshold; show compaction events on the frontend |
+| day15 | ⬜ | Slash commands + themes + Plan Mode + **native menu bar** + **`protocol.handle('pi-agent://')` deep links** | `promptsOverride` to inject commands; theme files; `Menu.buildFromTemplate` + `protocol.handle` |
 
 ## Directory layout
 
@@ -53,7 +54,7 @@ pi-agent-101/
 │   ├── package.json
 │   ├── node_modules/        (local dependencies after npm install)
 │   └── README.md
-├── day2/ ... day14/         ← Each day is an independent directory
+├── day2/ ... day15/         ← Each day is an independent directory
 ```
 
 ## How to run
