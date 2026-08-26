@@ -4,7 +4,7 @@
 
 An incremental tutorial project for building an Electron desktop pi agent chat application on top of the pi SDK.
 
-Final goal: wrap the Web UI in an Electron desktop shell to ship a double-clickable pi agent desktop chat app. The web side (everything from day1-day13) keeps working standalone in a browser; the Electron side stays deliberately minimal — it just opens a window pointing at the local dev server, with no IPC / preload / native modules / custom protocols.
+Final goal: a double-clickable, native Electron desktop chat application. day1-day13 stays as a pure Web UI (still runs standalone in a browser); day14+ moves it into Electron — the main process owns the pi session directly, the renderer talks to it via IPC + preload (contextBridge), and we layer on dialogs / native menu / `protocol.handle` custom schemes — capabilities only Electron can give you.
 
 ## Roadmap
 
@@ -38,14 +38,15 @@ Each capability in Track 2 follows: read the official pi extension example → u
 | day12 | ⬜ | Compaction (auto-compress long sessions) | `session.compact()` + `SettingsManager`'s `compaction.enabled` / threshold; show compaction events on the frontend |
 | day13 | ⬜ | Slash commands + themes + Plan Mode | `promptsOverride` to inject commands; theme files; see `examples/extensions/plan-mode/` for self-implementation |
 
-### Track 3: Wrap-up (Electron desktop shell)
+### Track 3: Wrap-up (Electron native desktop app)
 
-> This track has exactly one goal: put the Web UI from Tracks 1 and 2 inside an Electron desktop window.
-> Deliberately minimal: reuse the dev server + `BrowserWindow.loadURL("http://localhost:5173")`. No preload, no IPC, no native APIs, no `protocol.handle` custom schemes.
+> This track moves the day1-day13 pure Web UI into Electron, making it a **real native desktop app**.
+> The main process owns the pi session directly, runs Node, calls native APIs, and registers custom protocols; the renderer talks to the main process via IPC + preload (contextBridge). The HTTP/SSE "pretend it's a web app" compromises are gone.
 
-| Day | Status | Goal | Key skill / pi SDK capability |
+| Day | Status | Goal | Key skill |
 | --- | --- | --- | --- |
-| day14 | ⬜ | Electron minimal shell — `npm start` launches an Electron window that hosts the day2-day13 dev server | `electron` + `BrowserWindow({ loadURL })`; zero coupling to the pi SDK |
+| day14 | ⬜ | Electron + IPC + preload — main process owns the pi session; renderer talks to it via `contextBridge`-exposed `pi.prompt()` / `pi.on('text_delta', ...)`; HTTP/SSE deleted | `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` |
+| day15 | ⬜ | Native capabilities + custom protocol — file dialogs (export / import sessions), native menu bar, `Notification` system notifications, `protocol.handle('pi-agent://')` for deep links / local resource loading | `dialog.showOpenDialog` / `Menu.buildFromTemplate` / `Notification` / `protocol.handle` |
 
 ## Directory layout
 
@@ -57,7 +58,7 @@ pi-agent-101/
 │   ├── package.json
 │   ├── node_modules/        (local dependencies after npm install)
 │   └── README.md
-├── day2/ ... day14/         ← Each day is an independent directory
+├── day2/ ... day15/         ← Each day is an independent directory
 ```
 
 ## How to run
