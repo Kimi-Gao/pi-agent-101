@@ -2,9 +2,9 @@
 
 **[English]** | [中文](https://github.com/Kimi-Gao/pi-agent-101/blob/cn/README.md)
 
-An incremental tutorial project for building a Web UI Agent chat box on top of the pi SDK.
+An incremental tutorial project for building an Electron desktop pi agent chat application on top of the pi SDK.
 
-Final goal: a Web UI where you can chat with an agent in the browser, trigger skills, visualize tool calls, and gain Claude Code-equivalent features (permission approvals / MCP / Sub-agent).
+Final goal: wrap the Web UI in an Electron desktop shell to ship a double-clickable pi agent desktop chat app. The web side (everything from day1-day13) keeps working standalone in a browser; the Electron side stays deliberately minimal — it just opens a window pointing at the local dev server, with no IPC / preload / native modules / custom protocols.
 
 ## Roadmap
 
@@ -38,6 +38,15 @@ Each capability in Track 2 follows: read the official pi extension example → u
 | day12 | ⬜ | Compaction (auto-compress long sessions) | `session.compact()` + `SettingsManager`'s `compaction.enabled` / threshold; show compaction events on the frontend |
 | day13 | ⬜ | Slash commands + themes + Plan Mode | `promptsOverride` to inject commands; theme files; see `examples/extensions/plan-mode/` for self-implementation |
 
+### Track 3: Wrap-up (Electron desktop shell)
+
+> This track has exactly one goal: put the Web UI from Tracks 1 and 2 inside an Electron desktop window.
+> Deliberately minimal: reuse the dev server + `BrowserWindow.loadURL("http://localhost:5173")`. No preload, no IPC, no native APIs, no `protocol.handle` custom schemes.
+
+| Day | Status | Goal | Key skill / pi SDK capability |
+| --- | --- | --- | --- |
+| day14 | ⬜ | Electron minimal shell — `npm start` launches an Electron window that hosts the day2-day13 dev server | `electron` + `BrowserWindow({ loadURL })`; zero coupling to the pi SDK |
+
 ## Directory layout
 
 ```
@@ -48,7 +57,7 @@ pi-agent-101/
 │   ├── package.json
 │   ├── node_modules/        (local dependencies after npm install)
 │   └── README.md
-├── day2/ ... day13/         ← Each day is an independent directory
+├── day2/ ... day14/         ← Each day is an independent directory
 ```
 
 ## How to run
