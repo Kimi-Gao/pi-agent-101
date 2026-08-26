@@ -4,30 +4,41 @@
 
 An incremental tutorial project for building an Electron desktop pi agent chat application on top of the pi SDK.
 
-Final goal: a double-clickable, native Electron desktop chat application. day1-day2 stays as a pure Web UI (still runs standalone in a browser); day3 onward moves into an Electron window — first as a `loadURL` shell, then day4-day14 progressively layers on Web UI + Claude Code features; day15+ replaces HTTP/SSE with IPC + preload (contextBridge) and adds dialogs / native menu / `protocol.handle` custom schemes — capabilities only Electron can give you.
+Final goal: a double-clickable, native Electron desktop chat application. The curriculum is split into two blocks: **Browser Era** (day1-day2, pure Web UI in browser) and **Desktop Agent Era** (day3-day16, Electron desktop app). The final product is a native Electron app — Stage C (day15+) replaces HTTP/SSE with IPC + preload (contextBridge) and adds dialogs / native menu / `protocol.handle` custom schemes — capabilities only Electron can give you.
 
 ## Roadmap
 
-### Track 1: Basics (from zero to a Web UI inside Electron)
+### Browser Era: Web UI in browser (day1-day2)
 
-Goal: start from the command line, build a browser-runnable Web UI; from day3 onward, move it into an Electron window and progressively layer on capabilities.
+> These two days build the "chat with the agent in a browser" path. All protocols are standard web tech (HTTP / SSE); just open a browser and it runs.
 
-| Day | Status | Goal | Key skill |
+| Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
 | [**day1**](./day1/) | ✅ | CLI REPL minimum viable chat | `createAgentSession`, `subscribe`, `prompt` |
 | [**day2**](./day2/) | ✅ | Web UI minimum viable version (single session + SSE streaming) | Node `http` + `EventSource`; server translates `subscribe` events into SSE |
-| day3 | ⬜ | **Electron minimal shell** — `npm start` launches an Electron window that hosts the day2 dev server; first contact with main process / renderer process / `BrowserWindow` | `electron` + `BrowserWindow({ loadURL })`; IPC + preload arrives in day15+ |
+
+### Desktop Agent Era: Electron-based (day3-day16)
+
+> From day3 onward everything runs inside an Electron desktop app. Internally split into three sub-stages: **A. Shell + Web UI enhancement** (day3-day7), **B. Claude Code capability fill-in** (day8-day14), **C. Electron native** (day15-day16).
+
+#### Stage A: Shell + Web UI enhancement (day3-day7)
+
+Take the day2 Web UI and put it inside an Electron window; layer on sessions / tools / skills / thinking day by day. This stage still uses HTTP/SSE — no difference from the Browser Era on the protocol layer.
+
+| Day | Status | Goal | Key skill |
+| --- | --- | --- | --- |
+| day3 | ⬜ | **Electron minimal shell** — `npm start` launches an Electron window that hosts the day2 dev server; first contact with Electron main process / renderer process / `BrowserWindow` | `electron` + `BrowserWindow({ loadURL })`; IPC + preload arrives in Stage C |
 | day4 | ⬜ | Multi-session management (sidebar + new/switch/delete sessions) | `createAgentSessionRuntime`, `runtime.newSession` / `switchSession` |
 | day5 | ⬜ | Tool call visualization (one collapsible card per tool call) | `tool_execution_start` / `_update` / `_end` events |
 | day6 | ⬜ | Skills panel + custom tool buttons | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
 | day7 | ⬜ | Thinking visualization + tool human-in-the-loop + persistence | `thinking_delta` event + event interception + `SessionManager.create` |
 
-### Track 2: Advanced (Claude Code-equivalent features)
+#### Stage B: Claude Code capability fill-in (day8-day14)
 
 > Pi's official docs explicitly state it **intentionally does not include** built-in MCP, Sub-agent, permission popups, or Plan Mode. These capabilities must be built via the extension mechanism or installed from third-party packages.
 > Quote: `docs/usage.md:304` — "It intentionally does not include built-in MCP, sub-agents, permission popups, plan mode..."
 
-Each capability in Track 2 follows: read the official pi extension example → understand how it works → land it in our Electron app.
+Each capability follows: read the official pi extension example → understand how it works → land it in our Electron app.
 
 | Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
@@ -39,10 +50,10 @@ Each capability in Track 2 follows: read the official pi extension example → u
 | day13 | ⬜ | Compaction (auto-compress long sessions) | `session.compact()` + `SettingsManager`'s `compaction.enabled` / threshold; show compaction events on the frontend |
 | day14 | ⬜ | Slash commands + themes + Plan Mode | `promptsOverride` to inject commands; theme files; see `examples/extensions/plan-mode/` for self-implementation |
 
-### Track 3: Wrap-up (Electron native desktop app)
+#### Stage C: Electron native (day15-day16)
 
-> Building on the day3 Electron shell, this track upgrades the interaction model from "browser over HTTP/SSE" to "native desktop over IPC", making it a **real native desktop app**.
-> The main process owns the pi session directly, runs Node, calls native APIs, and registers custom protocols; the renderer talks to the main process via IPC + preload (contextBridge). The HTTP/SSE "pretend it's a web app" compromises are gone.
+> Cut the HTTP/SSE "pretend it's a web app" compromises used in Stages A/B; let Electron actually leverage its desktop-app advantages.
+> The main process owns the pi session directly, runs Node, calls native APIs, and registers custom protocols; the renderer talks to the main process via IPC + preload (contextBridge).
 
 | Day | Status | Goal | Key skill |
 | --- | --- | --- | --- |
