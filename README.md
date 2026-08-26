@@ -4,43 +4,34 @@
 
 An incremental tutorial project for building an Electron desktop pi agent chat application on top of the pi SDK.
 
-Final goal: a double-clickable, native Electron desktop chat application. The curriculum is split into two blocks: **Browser Era** (day1-day2, pure Web UI in browser) and **Desktop Agent Era** (day3-day14, Electron desktop app). From day3 onward we refactor with Electron, progressively layering Web UI + Claude Code features; Electron-native capabilities — IPC+preload (day4) / Notification (day8) / dialog (day12) / Menu + `protocol.handle` (day14) — land on the day that needs them, turning the day2 browser Web UI into a real desktop app.
+Final goal: a double-clickable, native Electron desktop chat application. The curriculum is split into three stages by agent capability: **Agent fundamentals** (day1-day3 — three forms of an agent: CLI / Web / Desktop), **Basic Agent** (day4-day7 — one foundational capability per day), **Advanced Agent** (day8-day14 — Claude Code parity plus Electron-native capability fill-in). From day3 onward we develop entirely under the Electron main / renderer architecture; chat transport gets upgraded from HTTP/SSE to IPC+preload on day3 itself; Notification / dialog / Menu / `protocol.handle` land on whichever day needs them.
 
 ## Roadmap
 
-### Browser Era: Web UI in browser (day1-day2)
+### Agent fundamentals (day1-day3)
 
-> These two days build the "chat with the agent in a browser" path. All protocols are standard web tech (HTTP / SSE); just open a browser and it runs.
+> Understand what an agent is, how it runs, and its three basic forms: CLI / Web UI / Desktop Agent.
 
 | Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
 | [**day1**](./day1/) | ✅ | CLI REPL minimum viable chat | `createAgentSession`, `subscribe`, `prompt` |
 | [**day2**](./day2/) | ✅ | Web UI minimum viable version (single session + SSE streaming) | Node `http` + `EventSource`; server translates `subscribe` events into SSE |
+| day3 | ⬜ | **Desktop Agent kickoff** — first contact with Electron: multi-session management (sidebar + new/switch/delete sessions) + **transport upgrade**: HTTP/SSE deleted, main process owns the pi session directly, renderer talks to it via `contextBridge`-exposed `pi.prompt()` / `pi.on('text_delta', ...)` | `electron` + `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` + `createAgentSessionRuntime`, `runtime.newSession` / `switchSession` |
 
-### Desktop Agent Era: Electron-based (day3-day14)
+### Basic Agent (day4-day7)
 
-> From day3 onward everything runs inside an Electron desktop app. Internally split into two sub-stages: **A. Refactor with Electron** (day3-day7), **B. Claude Code capability fill-in** (day8-day14).
->
-> The big shift from the Browser Era: from day3 we develop entirely under the Electron main / renderer architecture; chat transport gets upgraded from HTTP/SSE to IPC+preload on day4; Notification / dialog / Menu / `protocol.handle` land on whichever day needs them.
+> On top of day3's multi-session Electron app, light up foundational capabilities one day at a time: tool visualization, Skills, thinking, persistence.
 
-#### Stage A: Refactor with Electron (day3-day7)
-
-Refactor the day2 Web UI with Electron; layer on sessions / tools / skills / thinking day by day. day3 is still a `loadURL` shell; once day4's transport upgrade lands, we're running a real native Electron app.
-
-| Day | Status | Goal | Key skill |
+| Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
-| day3 | ⬜ | **Electron minimal shell** — `npm start` launches an Electron window that hosts the day2 dev server; first contact with Electron main process / renderer process / `BrowserWindow` | `electron` + `BrowserWindow({ loadURL })`; transport upgrade lands on day4 |
-| day4 | ⬜ | Multi-session management + **transport upgrade** — sidebar + new/switch/delete sessions; HTTP/SSE deleted, main process owns the pi session directly, renderer talks to it via `contextBridge`-exposed `pi.prompt()` / `pi.on('text_delta', ...)` | `createAgentSessionRuntime`, `runtime.newSession` / `switchSession` + `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` |
-| day5 | ⬜ | Tool call visualization (one collapsible card per tool call) | `tool_execution_start` / `_update` / `_end` events |
-| day6 | ⬜ | Skills panel + custom tool buttons | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
-| day7 | ⬜ | Thinking visualization + tool human-in-the-loop + persistence | `thinking_delta` event + event interception + `SessionManager.create` |
+| day4 | ⬜ | Tool call visualization (one collapsible card per tool call) | `tool_execution_start` / `_update` / `_end` events |
+| day5 | ⬜ | Skills panel + custom tool buttons | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
+| day6 | ⬜ | Thinking visualization + basic tool human-in-the-loop approval | `thinking_delta` event + event interception |
+| day7 | ⬜ | Persistence (basic) — SessionManager persists sessions to disk; resumption after restart | `SessionManager.create` |
 
-#### Stage B: Claude Code capability fill-in (day8-day14)
+### Advanced Agent (day8-day14)
 
-> Pi's official docs explicitly state it **intentionally does not include** built-in MCP, Sub-agent, permission popups, or Plan Mode. These capabilities must be built via the extension mechanism or installed from third-party packages.
-> Quote: `docs/usage.md:304` — "It intentionally does not include built-in MCP, sub-agents, permission popups, plan mode..."
-
-Each capability follows: read the official pi extension example → understand how it works → land it in our Electron app. Each day also lands whatever Electron-native capability it needs.
+> Reach Claude Code parity: MCP, Sub-agent, Hooks, Compaction, Slash + Plan Mode; plus Electron-native capability fill-in (Notification / dialog / Menu / `protocol.handle`).
 
 | Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
@@ -48,7 +39,7 @@ Each capability follows: read the official pi extension example → understand h
 | day9 | ⬜ | MCP integration (external tool protocol) | `extensionFactories` + MCP server; tools auto-register into session. Frontend lists MCP tools in the tools panel |
 | day10 | ⬜ | Sub-agent (Task tool + nested session) | Custom `task` tool; internally calls `createAgentSession` to spawn a child session; bubble child events up to parent. See `examples/extensions/subagent/` |
 | day11 | ⬜ | Hooks / extension mechanism full mastery | Listen to all events via `pi.on()`; interact with users via `ctx.ui.confirm/notify`; inject messages via `ctx.sendUserMessage` |
-| day12 | ⬜ | Session persistence + restore + branching + **dialog file pickers** (import / export) | `SessionManager.create/list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
+| day12 | ⬜ | Session restore + branching + **dialog file pickers** (import / export) | `SessionManager.list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
 | day13 | ⬜ | Compaction (auto-compress long sessions) | `session.compact()` + `SettingsManager`'s `compaction.enabled` / threshold; show compaction events on the frontend |
 | day14 | ⬜ | Slash commands + themes + Plan Mode + **native menu bar** + **`protocol.handle('pi-agent://')` deep links** | `promptsOverride` to inject commands; theme files; `Menu.buildFromTemplate` + `protocol.handle` |
 
