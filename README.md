@@ -19,11 +19,11 @@
 
 ### Desktop Agent 时代：Electron-based（day3-day16）
 
-> day3 起全部跑在 Electron 桌面应用里。内部再分三个子阶段：**A. 套壳 + Web UI 增强**（day3-day7）、**B. Claude Code 能力补齐**（day8-day14）、**C. Electron 原生化**（day15-day16）。
+> day3 起全部跑在 Electron 桌面应用里。内部再分三个子阶段：**A. 用 Electron 重构起步**（day3-day7）、**B. Claude Code 能力补齐**（day8-day14）、**C. Electron 原生化**（day15-day16）。
 
-#### 阶段 A：套壳 + Web UI 增强（day3-day7）
+#### 阶段 A：用 Electron 重构起步（day3-day7）
 
-把 day2 的 Web UI 装进 Electron 窗口，逐日叠加会话/工具/Skills/思考能力。这一阶段协议层还是 HTTP/SSE，跟浏览器时代无差别。
+用 Electron 重构 day2 的 Web UI，逐日叠加会话/工具/Skills/思考能力。这一阶段协议层还是 HTTP/SSE，但应用形态已经从 Web UI 转成了 Electron 桌面应用。
 
 | Day | 状态 | 目标 | 关键技能 |
 | --- | --- | --- | --- |
