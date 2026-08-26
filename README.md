@@ -4,7 +4,7 @@
 
 基于 pi SDK 逐步构建一个 Electron 桌面版的 pi agent 聊天对话应用。
 
-最终目标：用 Electron 桌面壳包住 Web UI，做成一个可双击启动的 pi agent 桌面聊天应用。Web 部分（day1-day13 的全部成果）依然可以在浏览器里独立跑；Electron 部分刻意保持最简——只负责“打开窗口指向本地 dev server”，不引入 IPC / preload / 原生模块 / 自定义协议。
+最终目标：一个可双击启动的 Electron 原生桌面聊天应用。day1-day13 的成果保持纯 Web UI（浏览器里也能独立跑）；day14+ 搬到 Electron 以后，主进程直接持有 pi session、渲染进程通过 IPC + preload（contextBridge）跟主进程对话，再叠加文件对话框、原生菜单、`protocol.handle` 自定义协议等只有 Electron 才能给的能力。
 
 ## 总体规划
 
@@ -38,14 +38,15 @@
 | day12 | ⬜ | Compaction（长会话自动压缩） | `session.compact()` + `SettingsManager` 中的 `compaction.enabled` / 阈值；前端展示压缩事件 |
 | day13 | ⬜ | Slash commands + 主题 + Plan Mode | `promptsOverride` 注入命令；主题文件；参考 `examples/extensions/plan-mode/` 自行实现 |
 
-### 第三篇：收尾（Electron 桌面壳）
+### 第三篇：收尾（Electron 原生桌面应用）
 
-> 这一篇只有一个目标：把前两篇造出的 Web UI 装进一个 Electron 桌面窗口里。
-> 故意保持最简：复用 dev server + `BrowserWindow.loadURL("http://localhost:5173")`，不引入 preload、不引入 IPC、不接 native API、不用 `protocol.handle` 自定义协议。
+> 这一篇把 day1-day13 的纯 Web UI 搬进 Electron，做成**真正的原生桌面应用**。
+> 主进程直接持有 pi session、能跑 Node、能调原生 API、能注册自定义协议；渲染进程通过 IPC + preload（contextBridge）跟主进程对话。HTTP/SSE 那种“假装是网络应用”的妥协可以全砍掉。
 
-| Day | 状态 | 目标 | 关键技能 / pi SDK 能力 |
+| Day | 状态 | 目标 | 关键技能 |
 | --- | --- | --- | --- |
-| day14 | ⬜ | Electron 最小壳 — `npm start` 一键起 Electron 窗口，内嵌 day2-day13 的 dev server | `electron` + `BrowserWindow({ loadURL })`；与 pi SDK 零耦合 |
+| day14 | ⬜ | Electron + IPC + preload——主进程直接持有 pi session，渲染进程通过 `contextBridge` 暴露的 `pi.prompt()` / `pi.on('text_delta', ...)` 跟主进程对话；HTTP/SSE 全删 | `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` |
+| day15 | ⬜ | 原生能力 + 自定义协议——文件对话框（导出 / 导入会话）、原生菜单栏、`Notification` 系统通知、`protocol.handle('pi-agent://')` 深链 / 本地资源加载 | `dialog.showOpenDialog` / `Menu.buildFromTemplate` / `Notification` / `protocol.handle` |
 
 ## 目录结构
 
@@ -57,7 +58,7 @@ pi-agent-101/
 │   ├── package.json
 │   ├── node_modules/        （npm install 后本地依赖）
 │   └── README.md
-├── day2/ ... day14/         ← 后续每天一个独立目录，互不干扰
+├── day2/ ... day15/         ← 后续每天一个独立目录，互不干扰
 ```
 
 ## 怎么跑
