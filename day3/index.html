@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>pi-agent-101 · day3</title>
+<style>
+  body { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace;
+         max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+  h1 { font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem; }
+  h1 small { color: #888; font-weight: 400; margin-left: 0.5rem; }
+  #log { border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem 0.75rem;
+         min-height: 14rem; max-height: 60vh; overflow-y: auto;
+         background: #fafafa; }
+  #log div { margin: 0.1rem 0; white-space: pre-wrap; word-break: break-word; }
+  #log div[data-role="user"] { color: #06c; }
+  #log div[data-role="tool"]  { color: #888; }
+  #log div[data-role="error"] { color: #c30; }
+  form { margin-top: 0.5rem; display: flex; gap: 0.5rem; }
+  input { flex: 1; padding: 0.45rem 0.6rem; font: inherit; border: 1px solid #ccc;
+          border-radius: 4px; }
+  input:disabled { background: #f4f4f4; color: #888; }
+  button { padding: 0.45rem 1rem; font: inherit; cursor: pointer; }
+  button:disabled { cursor: not-allowed; color: #888; }
+</style>
+</head>
+<body>
+<h1>pi-agent-101 <small>day3 · Desktop Agent + IPC</small></h1>
+<div id="log"></div>
+<form id="f">
+  <input id="t" autocomplete="off" placeholder="说点什么…" disabled>
+  <button disabled>发送</button>
+</form>
+<script src="./chat.js"></script>
+</body>
+</html>

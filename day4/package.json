@@ -1,0 +1,13 @@
+{
+  "name": "pi-agent-101-day4",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "基于 pi SDK 的多会话管理 Web UI 教学示例（浏览器版）",
+  "scripts": {
+    "start": "node --experimental-strip-types server.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "^0.84.2"
+  }
+}
