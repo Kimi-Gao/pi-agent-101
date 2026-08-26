@@ -19,11 +19,11 @@ Final goal: a double-clickable, native Electron desktop chat application. The cu
 
 ### Desktop Agent Era: Electron-based (day3-day16)
 
-> From day3 onward everything runs inside an Electron desktop app. Internally split into three sub-stages: **A. Shell + Web UI enhancement** (day3-day7), **B. Claude Code capability fill-in** (day8-day14), **C. Electron native** (day15-day16).
+> From day3 onward everything runs inside an Electron desktop app. Internally split into three sub-stages: **A. Refactor with Electron** (day3-day7), **B. Claude Code capability fill-in** (day8-day14), **C. Electron native** (day15-day16).
 
-#### Stage A: Shell + Web UI enhancement (day3-day7)
+#### Stage A: Refactor with Electron (day3-day7)
 
-Take the day2 Web UI and put it inside an Electron window; layer on sessions / tools / skills / thinking day by day. This stage still uses HTTP/SSE — no difference from the Browser Era on the protocol layer.
+Refactor the day2 Web UI with Electron; layer on sessions / tools / skills / thinking day by day. This stage still uses HTTP/SSE on the protocol layer, but the app shape has shifted from Web UI to Electron desktop app.
 
 | Day | Status | Goal | Key skill |
 | --- | --- | --- | --- |
