@@ -4,30 +4,41 @@
 
 基于 pi SDK 逐步构建一个 Electron 桌面版的 pi agent 聊天对话应用。
 
-最终目标：一个可双击启动的 Electron 原生桌面聊天应用。day1-day2 保持纯 Web UI（浏览器里也能独立跑）；day3 起开始搬进 Electron 窗口——先以 `loadURL` 套壳，跟着 day4-day14 逐日叠加 Web UI + Claude Code 能力；day15+ 把 HTTP/SSE 全换成 IPC + preload（contextBridge），再叠加文件对话框、原生菜单、`protocol.handle` 自定义协议等只有 Electron 才能给的能力。
+最终目标：一个可双击启动的 Electron 原生桌面聊天应用。整个课程分两块：**浏览器时代**（day1-day2，纯 Web UI in browser）和 **Desktop Agent 时代**（day3-day16，Electron 桌面应用）。最终产品是 Electron 原生应用——阶段 C（day15+）把 HTTP/SSE 全换成 IPC + preload（contextBridge），再叠加文件对话框、原生菜单、`protocol.handle` 自定义协议等只有 Electron 才能给的能力。
 
 ## 总体规划
 
-### 第一篇：基础（从 0 到 Electron 里的 Web UI）
+### 浏览器时代：Web UI in browser（day1-day2）
 
-目标：从命令行起步，先做出能在浏览器里聊的 Web UI；day3 起搬进 Electron 窗口，逐日叠加能力。
+> 这两个 day 把"在浏览器里跟 agent 聊天"打通。所有协议都是标准 Web 技术（HTTP / SSE），打开浏览器就能跑。
 
-| Day | 状态 | 目标 | 关键技能 |
+| Day | 状态 | 目标 | 关键技能 / pi SDK 能力 |
 | --- | --- | --- | --- |
 | [**day1**](./day1/) | ✅ | 命令行 REPL 最小对话 | `createAgentSession`、`subscribe`、`prompt` |
 | [**day2**](./day2/) | ✅ | Web UI 最小版（单会话 + SSE 流式推送） | Node `http` + `EventSource`；服务端把 `subscribe` 的事件转写成 SSE |
-| day3 | ⬜ | **Electron 最小壳** — `npm start` 一键起 Electron 窗口，内嵌 day2 的 dev server；首次接触 Electron 主进程 / 渲染进程 / `BrowserWindow` 概念 | `electron` + `BrowserWindow({ loadURL })`；day15+ 才会换成 IPC + preload |
+
+### Desktop Agent 时代：Electron-based（day3-day16）
+
+> day3 起全部跑在 Electron 桌面应用里。内部再分三个子阶段：**A. 套壳 + Web UI 增强**（day3-day7）、**B. Claude Code 能力补齐**（day8-day14）、**C. Electron 原生化**（day15-day16）。
+
+#### 阶段 A：套壳 + Web UI 增强（day3-day7）
+
+把 day2 的 Web UI 装进 Electron 窗口，逐日叠加会话/工具/Skills/思考能力。这一阶段协议层还是 HTTP/SSE，跟浏览器时代无差别。
+
+| Day | 状态 | 目标 | 关键技能 |
+| --- | --- | --- | --- |
+| day3 | ⬜ | **Electron 最小壳** — `npm start` 一键起 Electron 窗口，内嵌 day2 的 dev server；首次接触 Electron 主进程 / 渲染进程 / `BrowserWindow` 概念 | `electron` + `BrowserWindow({ loadURL })`；阶段 C 才会换成 IPC + preload |
 | day4 | ⬜ | 多会话管理（侧边栏 + 新建/切换/删除会话） | `createAgentSessionRuntime`、`runtime.newSession` / `switchSession` |
 | day5 | ⬜ | 工具调用可视化（每次工具调用一张可折叠卡片） | `tool_execution_start` / `_update` / `_end` 三事件 |
 | day6 | ⬜ | Skills 面板 + 自定义工具按钮 | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
 | day7 | ⬜ | 思考过程可视化 + 工具人工审批 + 持久化 | `thinking_delta` 事件 + 事件拦截 + `SessionManager.create` |
 
-### 第二篇：进阶（Claude Code 基础能力）
+#### 阶段 B：Claude Code 能力补齐（day8-day14）
 
 > Pi 官方明确声明**故意不内置** MCP、Sub-agent、权限弹窗、Plan Mode。这些能力需要通过扩展机制自己构建或安装第三方包。
 > 引用：`docs/usage.md:304` — "It intentionally does not include built-in MCP, sub-agents, permission popups, plan mode..."
 
-第二篇的每一个能力都对应"读 pi 官方示例扩展 → 理解实现原理 → 在我们的 Electron 应用中落地"。
+每个能力对应"读 pi 官方示例扩展 → 理解实现原理 → 落地到 Electron 应用"。
 
 | Day | 状态 | 目标 | 关键技能 / pi SDK 能力 |
 | --- | --- | --- | --- |
@@ -39,10 +50,10 @@
 | day13 | ⬜ | Compaction（长会话自动压缩） | `session.compact()` + `SettingsManager` 中的 `compaction.enabled` / 阈值；前端展示压缩事件 |
 | day14 | ⬜ | Slash commands + 主题 + Plan Mode | `promptsOverride` 注入命令；主题文件；参考 `examples/extensions/plan-mode/` 自行实现 |
 
-### 第三篇：收尾（Electron 原生桌面应用）
+#### 阶段 C：Electron 原生化（day15-day16）
 
-> 这一篇在 day3 引入 Electron 套壳的基础上，把交互模式从“浏览器走 HTTP/SSE”升级成“原生桌面 IPC”，做成**真正的原生桌面应用**。
-> 主进程直接持有 pi session、能跑 Node、能调原生 API、能注册自定义协议；渲染进程通过 IPC + preload（contextBridge）跟主进程对话。HTTP/SSE 那种“假装是网络应用”的妥协可以全砍掉。
+> 砍掉阶段 A/B 还在用的 HTTP/SSE 这套"假装是网络应用"的妥协，让 Electron 真正发挥桌面应用的优势。
+> 主进程直接持有 pi session、能跑 Node、能调原生 API、能注册自定义协议；渲染进程通过 IPC + preload（contextBridge）跟主进程对话。
 
 | Day | 状态 | 目标 | 关键技能 |
 | --- | --- | --- | --- |
