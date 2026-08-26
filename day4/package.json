@@ -1,0 +1,13 @@
+{
+  "name": "pi-agent-101-day4",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-session web UI tutorial example (browser version) built on the pi SDK",
+  "scripts": {
+    "start": "node --experimental-strip-types server.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "^0.84.2"
+  }
+}
