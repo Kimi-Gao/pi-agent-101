@@ -2,9 +2,9 @@
 
 **[中文]** | [English](https://github.com/Kimi-Gao/pi-agent-101/blob/main/README.md)
 
-基于 pi SDK 构建 Web UI Agent 对话框的渐进式教学项目。
+基于 pi SDK 逐步构建一个 Electron 桌面版的 pi agent 聊天对话应用。
 
-最终目标：一个能在浏览器里跟 agent 对话、可触发 skill、可视化工具调用、并拥有 Claude Code 同等基础能力（权限审批 / MCP / Sub-agent）的 Web UI。
+最终目标：用 Electron 桌面壳包住 Web UI，做成一个可双击启动的 pi agent 桌面聊天应用。Web 部分（day1-day13 的全部成果）依然可以在浏览器里独立跑；Electron 部分刻意保持最简——只负责“打开窗口指向本地 dev server”，不引入 IPC / preload / 原生模块 / 自定义协议。
 
 ## 总体规划
 
@@ -38,6 +38,15 @@
 | day12 | ⬜ | Compaction（长会话自动压缩） | `session.compact()` + `SettingsManager` 中的 `compaction.enabled` / 阈值；前端展示压缩事件 |
 | day13 | ⬜ | Slash commands + 主题 + Plan Mode | `promptsOverride` 注入命令；主题文件；参考 `examples/extensions/plan-mode/` 自行实现 |
 
+### 第三篇：收尾（Electron 桌面壳）
+
+> 这一篇只有一个目标：把前两篇造出的 Web UI 装进一个 Electron 桌面窗口里。
+> 故意保持最简：复用 dev server + `BrowserWindow.loadURL("http://localhost:5173")`，不引入 preload、不引入 IPC、不接 native API、不用 `protocol.handle` 自定义协议。
+
+| Day | 状态 | 目标 | 关键技能 / pi SDK 能力 |
+| --- | --- | --- | --- |
+| day14 | ⬜ | Electron 最小壳 — `npm start` 一键起 Electron 窗口，内嵌 day2-day13 的 dev server | `electron` + `BrowserWindow({ loadURL })`；与 pi SDK 零耦合 |
+
 ## 目录结构
 
 ```
@@ -48,7 +57,7 @@ pi-agent-101/
 │   ├── package.json
 │   ├── node_modules/        （npm install 后本地依赖）
 │   └── README.md
-├── day2/ ... day13/         ← 后续每天一个独立目录，互不干扰
+├── day2/ ... day14/         ← 后续每天一个独立目录，互不干扰
 ```
 
 ## 怎么跑
