@@ -4,43 +4,34 @@
 
 基于 pi SDK 逐步构建一个 Electron 桌面版的 pi agent 聊天对话应用。
 
-最终目标：一个可双击启动的 Electron 原生桌面聊天应用。整个课程分两块：**浏览器时代**（day1-day2，纯 Web UI in browser）和 **Desktop Agent 时代**（day3-day14，Electron 桌面应用）。day3 起以 Electron 重构起步，逐日叠加 Web UI + Claude Code 能力；期间通过 IPC+preload（day4）/ Notification（day8）/ dialog（day12）/ Menu + `protocol.handle`（day14）等 Electron 原生能力，把 day2 的浏览器 Web UI 真正转换为桌面应用。
+最终目标：一个可双击启动的 Electron 原生桌面聊天应用。整个课程按 Agent 的能力阶段分三段：**Agent原理**（day1-day3，弄清 Agent 的三种呈现形态：CLI / Web / Desktop）、**初级Agent**（day4-day7，逐日点亮基础能力）、**高级Agent**（day8-day14，达到 Claude Code 同等能力 + Electron 原生能力补齐）。day3 起全程在 Electron 主进程 / 渲染进程的架构下开发：chat transport 由 HTTP/SSE 升级到 IPC+preload；Notification / dialog / Menu / `protocol.handle` 等 Electron 原生能力按各自 day 的需要落地。
 
 ## 总体规划
 
-### 浏览器时代：Web UI in browser（day1-day2）
+### Agent原理（day1-day3）
 
-> 这两个 day 把"在浏览器里跟 agent 聊天"打通。所有协议都是标准 Web 技术（HTTP / SSE），打开浏览器就能跑。
+> 弄清楚 Agent 是什么、怎么跑、有几种基本呈现形式：CLI / Web UI / Desktop Agent。
 
 | Day | 状态 | 目标 | 关键技能 / pi SDK 能力 |
 | --- | --- | --- | --- |
-| [**day1**](./day1/) | ✅ | 命令行 REPL 最小对话 | `createAgentSession`、`subscribe`、`prompt` |
+| [**day1**](./day1/) | ✅ | CLI REPL 最小对话 | `createAgentSession`、`subscribe`、`prompt` |
 | [**day2**](./day2/) | ✅ | Web UI 最小版（单会话 + SSE 流式推送） | Node `http` + `EventSource`；服务端把 `subscribe` 的事件转写成 SSE |
+| day3 | ⬜ | **Desktop Agent 起步** — 第一次接触 Electron：多会话管理（侧边栏 + 新建/切换/删除会话）+ **transport 升级**：HTTP/SSE 全砍，主进程直接持有 pi session，渲染进程通过 `contextBridge` 暴露的 `pi.prompt()` / `pi.on('text_delta', ...)` 跟主进程对话 | `electron` + `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` + `createAgentSessionRuntime`、`runtime.newSession` / `switchSession` |
 
-### Desktop Agent 时代：Electron-based（day3-day14）
+### 初级Agent（day4-day7）
 
-> day3 起全部跑在 Electron 桌面应用里。内部再分两个子阶段：**A. 用 Electron 重构起步**（day3-day7）、**B. Claude Code 能力补齐**（day8-day14）。
->
-> 跟浏览器时代的最大差别：day3 起全程在 Electron 主进程 / 渲染进程的架构下开发；chat transport 在 day4 由 HTTP/SSE 升级到 IPC+preload；Notification / dialog / Menu / `protocol.handle` 等 Electron 原生能力按各自 day 的需要落地。
+> 在 day3 的多会话 Electron 应用之上，逐日点亮基础能力：工具可视化、Skills、思考过程、持久化。
 
-#### 阶段 A：用 Electron 重构起步（day3-day7）
-
-用 Electron 重构 day2 的 Web UI，逐日叠加会话/工具/Skills/思考能力。day3 还是 loadURL 套壳，day4 完成 transport 升级后就是真正的原生 Electron 应用。
-
-| Day | 状态 | 目标 | 关键技能 |
+| Day | 状态 | 目标 | 关键技能 / pi SDK 能力 |
 | --- | --- | --- | --- |
-| day3 | ⬜ | **Electron 最小壳** — `npm start` 一键起 Electron 窗口，内嵌 day2 的 dev server；首次接触 Electron 主进程 / 渲染进程 / `BrowserWindow` 概念 | `electron` + `BrowserWindow({ loadURL })`；day4 升级到 IPC+preload |
-| day4 | ⬜ | 多会话管理 + **transport 升级** — 侧边栏 + 新建/切换/删除会话；HTTP/SSE 全砍，主进程直接持有 pi session，渲染进程通过 `contextBridge` 暴露的 `pi.prompt()` / `pi.on('text_delta', ...)` 跟主进程对话 | `createAgentSessionRuntime`、`runtime.newSession` / `switchSession` + `ipcMain.handle` / `webContents.send` / `contextBridge.exposeInMainWorld` |
-| day5 | ⬜ | 工具调用可视化（每次工具调用一张可折叠卡片） | `tool_execution_start` / `_update` / `_end` 三事件 |
-| day6 | ⬜ | Skills 面板 + 自定义工具按钮 | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
-| day7 | ⬜ | 思考过程可视化 + 工具人工审批 + 持久化 | `thinking_delta` 事件 + 事件拦截 + `SessionManager.create` |
+| day4 | ⬜ | 工具调用可视化（每次工具调用一张可折叠卡片） | `tool_execution_start` / `_update` / `_end` 三事件 |
+| day5 | ⬜ | Skills 面板 + 自定义工具按钮 | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
+| day6 | ⬜ | 思考过程可视化 + 工具人工审批（基础版） | `thinking_delta` 事件 + 事件拦截 |
+| day7 | ⬜ | 持久化（基础） — SessionManager 把会话落盘，重启可恢复 | `SessionManager.create` |
 
-#### 阶段 B：Claude Code 能力补齐（day8-day14）
+### 高级Agent（day8-day14）
 
-> Pi 官方明确声明**故意不内置** MCP、Sub-agent、权限弹窗、Plan Mode。这些能力需要通过扩展机制自己构建或安装第三方包。
-> 引用：`docs/usage.md:304` — "It intentionally does not include built-in MCP, sub-agents, permission popups, plan mode..."
-
-每个能力对应"读 pi 官方示例扩展 → 理解实现原理 → 落地到 Electron 应用"。每个 day 按需引入 Electron 原生能力。
+> 达到 Claude Code 同等能力：MCP、Sub-agent、Hooks、Compaction、Slash + Plan Mode；以及 Electron 原生能力补齐（Notification / dialog / Menu / `protocol.handle`）。
 
 | Day | 状态 | 目标 | 关键技能 / pi SDK 能力 |
 | --- | --- | --- | --- |
@@ -48,7 +39,7 @@
 | day9 | ⬜ | MCP 集成（接入外部工具协议） | `extensionFactories` + MCP server；工具自动注册到 session。前端把 MCP 工具列在工具面板 |
 | day10 | ⬜ | Sub-agent（Task 工具 + 嵌套 session） | 自定义 `task` 工具；内部 `createAgentSession` 起子会话；把子会话的事件流冒泡到父会话。参考 `examples/extensions/subagent/` |
 | day11 | ⬜ | Hooks / 扩展机制全掌握 | `pi.on()` 监听所有事件；`ctx.ui.confirm/notify` 与用户交互；`ctx.sendUserMessage` 注入消息 |
-| day12 | ⬜ | 会话持久化 + 恢复 + 分支 + **dialog 文件对话框**（导入 / 导出） | `SessionManager.create/list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
+| day12 | ⬜ | 会话恢复 + 分支 + **dialog 文件对话框**（导入 / 导出） | `SessionManager.list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
 | day13 | ⬜ | Compaction（长会话自动压缩） | `session.compact()` + `SettingsManager` 中的 `compaction.enabled` / 阈值；前端展示压缩事件 |
 | day14 | ⬜ | Slash commands + 主题 + Plan Mode + **原生菜单** + **`protocol.handle('pi-agent://')` 深链** | `promptsOverride` 注入命令；主题文件；`Menu.buildFromTemplate` + `protocol.handle` |
 
