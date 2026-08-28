@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>pi-agent-101 · day4</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace;
+         margin: 0; height: 100vh; color: #222; background: #fff; }
+  #app { display: grid; grid-template-columns: 220px 1fr;
+         height: 100vh; }
+  #side { border-right: 1px solid #ddd; background: #fafafa;
+          display: flex; flex-direction: column; }
+  #side h1 { font-size: 0.95rem; margin: 0; padding: 0.75rem 1rem;
+             border-bottom: 1px solid #ddd; }
+  #side h1 small { color: #888; font-weight: 400; margin-left: 0.5rem; }
+  #new { margin: 0.5rem; padding: 0.4rem; font: inherit;
+         cursor: pointer; border: 1px solid #ccc; background: #fff;
+         border-radius: 4px; }
+  #list { list-style: none; margin: 0; padding: 0; overflow-y: auto;
+          flex: 1; }
+  #list li { display: flex; align-items: center; padding: 0.4rem 0.6rem;
+             cursor: pointer; border-bottom: 1px solid #eee;
+             gap: 0.4rem; }
+  #list li:hover { background: #f0f0f0; }
+  #list li.active { background: #e8f0ff; }
+  #list li .label { flex: 1; overflow: hidden; text-overflow: ellipsis;
+                    white-space: nowrap; }
+  main { display: flex; flex-direction: column; min-width: 0; }
+  #header { padding: 0.6rem 1rem; border-bottom: 1px solid #ddd;
+            font-size: 0.85rem; color: #555; }
+  #log { flex: 1; padding: 0.75rem 1rem; overflow-y: auto; }
+  #log div { margin: 0.15rem 0; white-space: pre-wrap;
+             word-break: break-word; }
+  #log div[data-role="user"] { color: #06c; }
+  #log div[data-role="tool"]  { color: #888; }
+  #log div[data-role="error"] { color: #c30; }
+  form { display: flex; gap: 0.5rem; padding: 0.5rem 1rem;
+         border-top: 1px solid #ddd; }
+  input { flex: 1; padding: 0.45rem 0.6rem; font: inherit;
+          border: 1px solid #ccc; border-radius: 4px; }
+  input:disabled { background: #f4f4f4; color: #888; }
+  button { padding: 0.45rem 1rem; font: inherit; cursor: pointer; }
+  button:disabled { cursor: not-allowed; color: #888; }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <h1>pi-agent-101 <small>day4 · 多会话</small></h1>
+    <button id="new">+ 新建会话</button>
+    <ul id="list"></ul>
+  </aside>
+  <main>
+    <div id="header">未选中会话</div>
+    <div id="log"></div>
+    <form id="f">
+      <input id="t" autocomplete="off" placeholder="说点什么…" disabled>
+      <button disabled>发送</button>
+    </form>
+  </main>
+</div>
+<script src="./chat.js"></script>
+</body>
+</html>
