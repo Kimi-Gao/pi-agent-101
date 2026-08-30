@@ -17,17 +17,23 @@ day3 只点亮"单会话 + IPC+preload"。侧边栏、新建/切换/删除等留
 
 ## 运行
 
-需要 Node ≥ 22.6（Node 24 默认开启 `--experimental-strip-types`，无需 tsx 或编译）。
+需要 Node ≥ 22.6 以及 **Electron ≥ 34**（本目录默认锁到 `^44.0.0`，即当前
+latest stable）。Electron 34+ 内置 Node 22.11+，支持 `--experimental-strip-types`
+标志——`electron-main.ts` / `preload.ts` 可以直接被 Electron 运行，无需 tsx
+或编译。
 
-`npm install` 时 Electron 会从 GitHub releases CDN 下载二进制。若网络环境
-下该 CDN 抽风或被墙，`postinstall` 会以 `socket hang up` 失败。`day3/.npmrc`
-已经把镜像指向 `https://npmmirror.com/mirrors/electron/`，无需手工设置
-`ELECTRON_MIRROR`。
+`npm install` 会从 GitHub releases CDN 下载 Electron 二进制（~200 MB）。`electron`
+包本身是懒加载的——二进制只在首次 `require('electron')` 时才下，**且那个下载走
+的是 plain Node 子进程**，`npm_config_*` env var 不会传过去，`.npmrc` 在这个场景
+下无效。为避免默认 CDN 在厺劣网络下 `socket hang up` 挂死，`package.json` 加了
+一个项目级 `postinstall` 脚本（`scripts/ensure-electron-binary.cjs`），显式 export
+`ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/` 后再跑 Electron 自带的
+下载逻辑——npmmirror 在中国大陆网络下稳定且镜像源是 bit-for-bit 的官方二进制。
 
 ```bash
 cd day3
 npm install     # 安装 electron + @earendil-works/pi-coding-agent
-npm start       # electron .
+npm start       # electron --experimental-strip-types .
 ```
 
 启动后会弹出一个桌面窗口，标题 `pi-agent-101 · day3`。在里面输入消息即可，

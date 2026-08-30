@@ -6,12 +6,13 @@
   "description": "基于 pi SDK 的最小 Electron Desktop Agent 教学示例（单会话 + IPC+preload）",
   "main": "electron-main.ts",
   "scripts": {
-    "start": "electron ."
+    "start": "electron --experimental-strip-types .",
+    "postinstall": "node scripts/ensure-electron-binary.cjs"
   },
   "dependencies": {
     "@earendil-works/pi-coding-agent": "^0.84.2"
   },
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^44.0.0"
   }
 }
