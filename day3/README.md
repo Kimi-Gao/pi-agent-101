@@ -19,6 +19,11 @@ day3 只点亮"单会话 + IPC+preload"。侧边栏、新建/切换/删除等留
 
 需要 Node ≥ 22.6（Node 24 默认开启 `--experimental-strip-types`，无需 tsx 或编译）。
 
+`npm install` 时 Electron 会从 GitHub releases CDN 下载二进制。若网络环境
+下该 CDN 抽风或被墙，`postinstall` 会以 `socket hang up` 失败。`day3/.npmrc`
+已经把镜像指向 `https://npmmirror.com/mirrors/electron/`，无需手工设置
+`ELECTRON_MIRROR`。
+
 ```bash
 cd day3
 npm install     # 安装 electron + @earendil-works/pi-coding-agent
