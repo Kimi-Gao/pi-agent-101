@@ -138,23 +138,29 @@ Repo: <https://github.com/earendil-works/pi/tree/main/packages>
 
 ### Dependency graph
 
+```mermaid
+graph TD
+    pca["<b>pi-coding-agent</b><br/>CLI + SDK shell"]
+    pac["<b>pi-agent-core</b><br/>Stateful agent"]
+    pai["<b>pi-ai</b><br/>Unified LLM API"]
+    pcl["<b>pi-client</b><br/>Remote session client"]
+    ppr["<b>pi-protocol</b><br/>CBOR protocol"]
+    ptui["<b>pi-tui</b><br/>Terminal UI framework"]
+    ptel["<b>pi-telemetry</b><br/>Vendor-neutral telemetry"]
+
+    pca --> pac
+    pca --> pai
+    pca --> pcl
+    pca --> ppr
+    pca --> ptui
+    pac --> pai
+    pac --> ptel
+    pai --> ptel
+    pcl --> ppr
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  pi-coding-agent   ← CLI / SDK entry, what this repo uses    │
-│       │                                                       │
-│       ├──► pi-agent-core    Stateful agent (tool exec + event stream) │
-│       │         │                                            │
-│       │         └──► pi-ai    Unified LLM API (multi-provider adapter)│
-│       │                                                        │
-│       ├──► pi-protocol   Runtime-neutral protocol schema + CBOR encoding │
-│       │       ▲                                              │
-│       │       │                                              │
-│       └──► pi-client     Remote session client (over pi-protocol) │
-│                                                                │
-│  pi-tui            Terminal UI framework (differential rendering, no-flicker)│
-│  pi-telemetry      Vendor-neutral telemetry contracts + typed schema │
-└─────────────────────────────────────────────────────────────┘
-```
+
+Arrow meaning: `A --> B` means **A directly depends on B** (B is listed in A's `package.json` `dependencies`).
+Note `pi-telemetry` is not a direct dependency of `pi-coding-agent` — it is pulled in transitively via `pi-agent-core` and `pi-ai`.
 
 ### Package responsibilities
 
