@@ -138,23 +138,29 @@ pi 是一个分层的 monorepo，`@earendil-works/pi-coding-agent` 只是最外�
 
 ### 依赖关系
 
+```mermaid
+graph TD
+    pca["<b>pi-coding-agent</b><br/>CLI + SDK 壳"]
+    pac["<b>pi-agent-core</b><br/>有状态 agent"]
+    pai["<b>pi-ai</b><br/>统一 LLM API"]
+    pcl["<b>pi-client</b><br/>远程会话客户端"]
+    ppr["<b>pi-protocol</b><br/>CBOR 协议"]
+    ptui["<b>pi-tui</b><br/>终端 UI 框架"]
+    ptel["<b>pi-telemetry</b><br/>供应商中立遥测"]
+
+    pca --> pac
+    pca --> pai
+    pca --> pcl
+    pca --> ppr
+    pca --> ptui
+    pac --> pai
+    pac --> ptel
+    pai --> ptel
+    pcl --> ppr
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  pi-coding-agent   ← CLI / SDK 入口，本仓库用的就是这个     │
-│       │                                                       │
-│       ├──► pi-agent-core    有状态 agent（tool 执行 + 事件流）│
-│       │         │                                            │
-│       │         └──► pi-ai    统一 LLM API（多 provider 适配）│
-│       │                                                        │
-│       ├──► pi-protocol   运行时无关的协议 schema + CBOR 编码  │
-│       │       ▲                                              │
-│       │       │                                              │
-│       └──► pi-client     远程会话客户端（走 pi-protocol）     │
-│                                                                │
-│  pi-tui            终端 UI 框架（差分渲染、防闪烁）           │
-│  pi-telemetry      供应商中立的遥测契约与类型化 schema          │
-└─────────────────────────────────────────────────────────────┘
-```
+
+箭头含义：`A --> B` 表示 **A 直接依赖 B**（`A` 的 `package.json` 里 `dependencies` 写了 `B`）。
+注意 `pi-telemetry` 不是 `pi-coding-agent` 的直接依赖 —— 它通过 `pi-agent-core` 和 `pi-ai` 间接引入。
 
 ### 各包职责
 
