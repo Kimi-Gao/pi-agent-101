@@ -17,12 +17,14 @@ Day4 uses the SDK's `AgentSessionRuntime` to take over session lifecycle:
 
 ## Run
 
-Requires Node ≥ 22.6 (Node 24 enables `--experimental-strip-types` by default, no tsx or build step).
+Requires Node ≥ 22.6 and **Electron ≥ 34** (this directory pins `^44.0.0`, the current stable). Electron 34+ bundles Node 22.11+, which supports the `--experimental-strip-types` flag — so `electron-main.ts` / `preload.ts` can be loaded directly by Electron without tsx or a build step.
+
+`npm install` downloads the Electron binary (~200 MB) from GitHub's releases CDN. The `electron` package is lazy: the binary only downloads on the first `require('electron')`, **spawned as a plain Node child process** — `npm_config_*` env vars don't reach it, so `.npmrc` redirection is a no-op in this scenario. To avoid the default CDN hanging with `socket hang up` on flaky networks, `package.json` adds a project-level `postinstall` hook (`scripts/ensure-electron-binary.cjs`) that explicitly exports `ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/` before re-running Electron's install script. npmmirror serves bit-for-bit copies of the official binaries and is reliable on mainland-China networks.
 
 ```bash
 cd day4
 npm install     # install electron + @earendil-works/pi-coding-agent
-npm start       # electron .
+npm start       # electron --experimental-strip-types .
 ```
 
 A desktop window pops up:

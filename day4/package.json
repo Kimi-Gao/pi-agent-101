@@ -6,12 +6,13 @@
   "description": "Multi-session Electron Desktop Agent tutorial (createAgentSessionRuntime) on top of the pi SDK",
   "main": "electron-main.ts",
   "scripts": {
-    "start": "electron ."
+    "start": "electron --experimental-strip-types .",
+    "postinstall": "node scripts/ensure-electron-binary.cjs"
   },
   "dependencies": {
     "@earendil-works/pi-coding-agent": "^0.84.2"
   },
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^44.0.0"
   }
 }
