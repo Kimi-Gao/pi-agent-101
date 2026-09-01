@@ -27,8 +27,9 @@ Final goal: a double-clickable, native Electron desktop chat application. The cu
 | [**day4**](./day4/) | ⬜ | **Multi-session management** — plug `createAgentSessionRuntime` into day3's single-session Electron app; sidebar + new / switch sessions, each with its own history; re-attach event subscriptions after switching | `createAgentSessionRuntime` + `runtime.newSession` / `switchSession` |
 | day5 | ⬜ | Tool call visualization (one collapsible card per tool call) | `tool_execution_start` / `_update` / `_end` events |
 | day6 | ⬜ | Skills panel + custom tool buttons | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
-| day7 | ⬜ | Thinking visualization | `thinking_delta` event |
-| day8 | ⬜ | Persistence (basic) — SessionManager persists sessions to disk; resumption after restart | `SessionManager.create` |
+| day7 | ⬜ | **Web Search tool** — first custom tool that actually calls an external API; agent is no longer limited to training data and can fetch real-time info | `defineTool` registers `web_search(query)`; call search API to return results; frontend renders the search result as a tool card |
+| day8 | ⬜ | Thinking visualization | `thinking_delta` event |
+| day9 | ⬜ | Persistence (basic) — SessionManager persists sessions to disk; resumption after restart | `SessionManager.create` |
 
 ### Advanced Agent
 
@@ -36,13 +37,13 @@ Final goal: a double-clickable, native Electron desktop chat application. The cu
 
 | Day | Status | Goal | Key skill / pi SDK capability |
 | --- | --- | --- | --- |
-| day9 | ⬜ | Tool permission approval system (human-in-the-loop) + **Notification** system notifications | Intercept `tool_execution_start`; frontend pops a confirmation dialog; server suspends until the user decides. See `examples/extensions/permission-gate.ts` + `Notification` |
-| day10 | ⬜ | MCP integration (external tool protocol) | `extensionFactories` + MCP server; tools auto-register into session. Frontend lists MCP tools in the tools panel |
-| day11 | ⬜ | Sub-agent (Task tool + nested session) | Custom `task` tool; internally calls `createAgentSession` to spawn a child session; bubble child events up to parent. See `examples/extensions/subagent/` |
-| day12 | ⬜ | Hooks / extension mechanism full mastery | Listen to all events via `pi.on()`; interact with users via `ctx.ui.confirm/notify`; inject messages via `ctx.sendUserMessage` |
-| day13 | ⬜ | Session restore + branching + **dialog file pickers** (import / export) | `SessionManager.list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
-| day14 | ⬜ | Compaction (auto-compress long sessions) | `session.compact()` + `SettingsManager`'s `compaction.enabled` / threshold; show compaction events on the frontend |
-| day15 | ⬜ | Slash commands + themes + Plan Mode + **native menu bar** + **`protocol.handle('pi-agent://')` deep links** | `promptsOverride` to inject commands; theme files; `Menu.buildFromTemplate` + `protocol.handle` |
+| day10 | ⬜ | Tool permission approval system (human-in-the-loop) + **Notification** system notifications | Intercept `tool_execution_start`; frontend pops a confirmation dialog; server suspends until the user decides. See `examples/extensions/permission-gate.ts` + `Notification` |
+| day11 | ⬜ | MCP integration (external tool protocol) | `extensionFactories` + MCP server; tools auto-register into session. Frontend lists MCP tools in the tools panel |
+| day12 | ⬜ | Sub-agent (Task tool + nested session) | Custom `task` tool; internally calls `createAgentSession` to spawn a child session; bubble child events up to parent. See `examples/extensions/subagent/` |
+| day13 | ⬜ | Hooks / extension mechanism full mastery | Listen to all events via `pi.on()`; interact with users via `ctx.ui.confirm/notify`; inject messages via `ctx.sendUserMessage` |
+| day14 | ⬜ | Session restore + branching + **dialog file pickers** (import / export) | `SessionManager.list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
+| day15 | ⬜ | Compaction (auto-compress long sessions) | `session.compact()` + `SettingsManager`'s `compaction.enabled` / threshold; show compaction events on the frontend |
+| day16 | ⬜ | Slash commands + themes + Plan Mode + **native menu bar** + **`protocol.handle('pi-agent://')` deep links** | `promptsOverride` to inject commands; theme files; `Menu.buildFromTemplate` + `protocol.handle` |
 
 ## Directory layout
 
@@ -54,7 +55,7 @@ pi-agent-101/
 │   ├── package.json
 │   ├── node_modules/        (local dependencies after npm install)
 │   └── README.md
-├── day2/ ... day15/         ← Each day is an independent directory
+├── day2/ ... day16/         ← Each day is an independent directory
 ```
 
 ## How to run
