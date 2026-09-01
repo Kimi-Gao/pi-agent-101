@@ -27,7 +27,7 @@
 | [**day4**](./day4/) | ⬜ | **多会话管理** — 用 `createAgentSessionRuntime` 接管 day3 的单会话；侧边栏 + 新建 / 切换会话，每个会话独立 history；切会话后事件订阅要重挂 | `createAgentSessionRuntime` + `runtime.newSession` / `switchSession` |
 | day5 | ⬜ | 工具调用可视化（每次工具调用一张可折叠卡片） | `tool_execution_start` / `_update` / `_end` 三事件 |
 | day6 | ⬜ | Skills 面板 + 自定义工具按钮 | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
-| day7 | ⬜ | 思考过程可视化 + 工具人工审批（基础版） | `thinking_delta` 事件 + 事件拦截 |
+| day7 | ⬜ | 思考过程可视化 | `thinking_delta` 事件 |
 | day8 | ⬜ | 持久化（基础） — SessionManager 把会话落盘，重启可恢复 | `SessionManager.create` |
 
 ### 高级Agent
