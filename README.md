@@ -27,8 +27,9 @@
 | [**day4**](./day4/) | ⬜ | **多会话管理** — 用 `createAgentSessionRuntime` 接管 day3 的单会话；侧边栏 + 新建 / 切换会话，每个会话独立 history；切会话后事件订阅要重挂 | `createAgentSessionRuntime` + `runtime.newSession` / `switchSession` |
 | day5 | ⬜ | 工具调用可视化（每次工具调用一张可折叠卡片） | `tool_execution_start` / `_update` / `_end` 三事件 |
 | day6 | ⬜ | Skills 面板 + 自定义工具按钮 | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
-| day7 | ⬜ | 思考过程可视化 | `thinking_delta` 事件 |
-| day8 | ⬜ | 持久化（基础） — SessionManager 把会话落盘，重启可恢复 | `SessionManager.create` |
+| day7 | ⬜ | **Web Search 工具** — 第一个真正调用外部 API 的自定义工具；agent 不再只靠训练数据，能查实时信息 | `defineTool` 注册 `web_search(query)`；调搜索 API 返回结果；前端把搜索结果渲染成工具卡片 |
+| day8 | ⬜ | 思考过程可视化 | `thinking_delta` 事件 |
+| day9 | ⬜ | 持久化（基础） — SessionManager 把会话落盘，重启可恢复 | `SessionManager.create` |
 
 ### 高级Agent
 
@@ -36,13 +37,13 @@
 
 | Day | 状态 | 目标 | 关键技能 / pi SDK 能力 |
 | --- | --- | --- | --- |
-| day9 | ⬜ | 工具权限审批系统（人类在环）+ **Notification** 系统通知 | 拦截 `tool_execution_start`；前端弹确认框；服务端挂起等用户决策再放行。参考 `examples/extensions/permission-gate.ts` + `Notification` |
-| day10 | ⬜ | MCP 集成（接入外部工具协议） | `extensionFactories` + MCP server；工具自动注册到 session。前端把 MCP 工具列在工具面板 |
-| day11 | ⬜ | Sub-agent（Task 工具 + 嵌套 session） | 自定义 `task` 工具；内部 `createAgentSession` 起子会话；把子会话的事件流冒泡到父会话。参考 `examples/extensions/subagent/` |
-| day12 | ⬜ | Hooks / 扩展机制全掌握 | `pi.on()` 监听所有事件；`ctx.ui.confirm/notify` 与用户交互；`ctx.sendUserMessage` 注入消息 |
-| day13 | ⬜ | 会话恢复 + 分支 + **dialog 文件对话框**（导入 / 导出） | `SessionManager.list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
-| day14 | ⬜ | Compaction（长会话自动压缩） | `session.compact()` + `SettingsManager` 中的 `compaction.enabled` / 阈值；前端展示压缩事件 |
-| day15 | ⬜ | Slash commands + 主题 + Plan Mode + **原生菜单** + **`protocol.handle('pi-agent://')` 深链** | `promptsOverride` 注入命令；主题文件；`Menu.buildFromTemplate` + `protocol.handle` |
+| day10 | ⬜ | 工具权限审批系统（人类在环）+ **Notification** 系统通知 | 拦截 `tool_execution_start`；前端弹确认框；服务端挂起等用户决策再放行。参考 `examples/extensions/permission-gate.ts` + `Notification` |
+| day11 | ⬜ | MCP 集成（接入外部工具协议） | `extensionFactories` + MCP server；工具自动注册到 session。前端把 MCP 工具列在工具面板 |
+| day12 | ⬜ | Sub-agent（Task 工具 + 嵌套 session） | 自定义 `task` 工具；内部 `createAgentSession` 起子会话；把子会话的事件流冒泡到父会话。参考 `examples/extensions/subagent/` |
+| day13 | ⬜ | Hooks / 扩展机制全掌握 | `pi.on()` 监听所有事件；`ctx.ui.confirm/notify` 与用户交互；`ctx.sendUserMessage` 注入消息 |
+| day14 | ⬜ | 会话恢复 + 分支 + **dialog 文件对话框**（导入 / 导出） | `SessionManager.list/open/continueRecent` + `navigateTree` + `fork` + `dialog.showOpenDialog` / `showSaveDialog` |
+| day15 | ⬜ | Compaction（长会话自动压缩） | `session.compact()` + `SettingsManager` 中的 `compaction.enabled` / 阈值；前端展示压缩事件 |
+| day16 | ⬜ | Slash commands + 主题 + Plan Mode + **原生菜单** + **`protocol.handle('pi-agent://')` 深链** | `promptsOverride` 注入命令；主题文件；`Menu.buildFromTemplate` + `protocol.handle` |
 
 ## 目录结构
 
@@ -54,7 +55,7 @@ pi-agent-101/
 │   ├── package.json
 │   ├── node_modules/        （npm install 后本地依赖）
 │   └── README.md
-├── day2/ ... day15/         ← 后续每天一个独立目录，互不干扰
+├── day2/ ... day16/         ← 后续每天一个独立目录，互不干扰
 ```
 
 ## 怎么跑
