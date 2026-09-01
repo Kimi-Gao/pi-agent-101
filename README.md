@@ -27,7 +27,7 @@ Final goal: a double-clickable, native Electron desktop chat application. The cu
 | [**day4**](./day4/) | ⬜ | **Multi-session management** — plug `createAgentSessionRuntime` into day3's single-session Electron app; sidebar + new / switch sessions, each with its own history; re-attach event subscriptions after switching | `createAgentSessionRuntime` + `runtime.newSession` / `switchSession` |
 | day5 | ⬜ | Tool call visualization (one collapsible card per tool call) | `tool_execution_start` / `_update` / `_end` events |
 | day6 | ⬜ | Skills panel + custom tool buttons | `DefaultResourceLoader({ skillsOverride })` + `defineTool` |
-| day7 | ⬜ | Thinking visualization + basic tool human-in-the-loop approval | `thinking_delta` event + event interception |
+| day7 | ⬜ | Thinking visualization | `thinking_delta` event |
 | day8 | ⬜ | Persistence (basic) — SessionManager persists sessions to disk; resumption after restart | `SessionManager.create` |
 
 ### Advanced Agent
